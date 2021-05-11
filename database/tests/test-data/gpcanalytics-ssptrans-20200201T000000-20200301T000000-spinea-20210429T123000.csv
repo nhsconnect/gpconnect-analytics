@@ -1,0 +1,28 @@
+"_time",sspFrom,sspTo,SspTraceId,interaction,responseCode,duration,responseSize,responseErrorMessage,method
+"2020-01-01T21:00:13.001+0000",100000000005,100000000002,"C013F113-6FDA-442C-9FCE-AA1DB0A7D327","urn:nhs:names:services:gpconnect:fhir:rest:read:location-1",200,"0.112",1555,None,GET
+"2020-01-01T21:00:12.002+0000",100000000005,100000000002,"CD5017B1-3ADB-4AE9-B6BC-F852CFAC90E2","urn:nhs:names:services:gpconnect:fhir:rest:search:patient-1",200,"0.131",2284,None,GET
+"2020-01-01T21:00:11.003+0000",100000000005,100000000002,"D241D1FF-AFFB-41AF-9EA2-6A2E71AF6A2F","urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1",200,"0.317",3584,None,GET
+"2020-01-01T20:59:56.004+0000",100000000005,100000000002,"768A556B-17BD-4D00-B973-A6DBCCB260B7","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",200,"0.343",5049,None,POST
+"2020-01-01T20:59:49.005+0000",100000000005,100000000002,"9FAD3937-8905-4B86-A686-6314EC51B9F7","urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1",403,"0.143",575,Forbidden,GET
+"2020-01-01T20:59:22.006+0000",100000000005,100000000002,"4D7E5F60-4943-447B-9F33-8C9499A2A541","urn:nhs:names:services:gpconnect:fhir:rest:search:slot-1",200,"1.487",131,None,GET
+"2020-01-01T20:59:17.007+0000",100000000005,100000000003,"CE6028F5-2A7F-40DE-9215-F920BE7A0C91","urn:nhs:names:services:gpconnect:fhir:rest:read:location-1",200,"0.725",834,None,GET
+"2020-01-01T20:59:16.008+0000",100000000001,100000000003,"C1295C68-6C6D-4616-AFEE-8F6ECC895D33","urn:nhs:names:services:gpconnect:fhir:rest:search:patient-1",200,"0.823",626,None,GET
+"2020-01-01T20:59:15.009+0000",100000000001,100000000003,"00D1A7D1-3EE5-4B89-B3AB-D671DF34DCC3","urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1",200,"0.742",2708,None,GET
+"2020-01-01T20:58:38.010+0000",100000000001,100000000003,"885B0E7F-DB18-4B83-A3CB-E14125AD23C3","urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1",403,"0.127",575,Forbidden,GET
+"2020-01-01T20:58:36.011+0000",100000000001,100000000003,"EC60F226-555B-4CED-B3E5-F98A2FD69C84","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",200,"0.228",12736,None,POST
+"2020-01-01T20:58:14.012+0000",100000000001,100000000003,"6130F59A-C37B-4293-8747-07FFED8C86BB","urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1",,0,,,GET
+"2020-01-01T20:57:28.013+0000",100000000001,100000000003,"87ADEEE2-3280-416F-A229-582C1B0BD102","urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1",,0,,,GET
+"2020-01-01T20:57:26.014+0000",100000000001,100000000003,"F502D9ED-DA20-478E-8F19-4425F57DE606","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",200,"0.206",51804,None,POST
+"2020-01-01T20:57:25.015+0000",100000000001,100000000003,"05EF9AA9-F54A-4A38-A27A-D4294541859C","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",200,"0.331",5419,None,POST
+"2020-01-01T20:34:50.016+0000",100000000001,100000000004,"F5E187B3-0CE8-45CE-B61A-AEDFF4AEDEED","urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1",200,"0.309",3521,None,GET
+"2020-01-01T20:33:51.017+0000",100000000001,100000000004,"CC3A1FA1-025F-4F71-965C-18C4273F9A3C","urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1",403,"0.617",453,Forbidden,GET
+"2020-01-01T20:33:17.018+0000",100000000001,100000000004,"B7D9FDC2-3074-4A7A-9A48-82C7E891C455","urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1",599,"3.03",0,"Failed to connect to system port 443: Connection refused",GET
+"2020-01-01T20:33:14.019+0000",100000000001,100000000004,"2DA451E4-403F-4BBE-9972-7BB3C6CDEE6E","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",599,"0.033",0,"Failed to connect to system port 443: Connection refused",POST
+"2020-01-01T20:33:14.020+0000",100000000001,100000000004,"D6EC6510-47FD-4873-84A2-A37F531AAD62","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",599,"0.033",0,"Failed to connect to system port 443: Connection refused",POST
+"2020-01-01T20:33:14.021+0000",100000000002,100000000004,"9DD58C40-E115-4DFA-8161-1CA2C565AB2E","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",599,"0.035",0,"Failed to connect to system port 443: Connection refused",POST
+"2020-02-01T00:07:06.022+0000",100000000002,100000000004,"292B6EC8-EAAD-497F-BCEA-9FB6FF7F9D83","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",599,"5.004",0,"Operation timed out after 5000 milliseconds with 0 out of 0 bytes received",POST
+"2020-01-01T00:06:39.023+0000",100000000002,100000000004,"B2EA200B-ABC0-4181-BCAA-D41E62F7703C","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",599,"5.006",0,"Operation timed out after 5001 milliseconds with 0 out of 0 bytes received",POST
+"2020-01-01T00:06:23.024+0000",100000000002,100000000005,"9454D198-1241-4423-A1B0-40A8B9D2CB18","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",599,"5.005",0,"Operation timed out after 5000 milliseconds with 0 out of 0 bytes received",POST
+"2020-01-01T00:04:29.025+0000",100000000002,100000000005,"BC3630C5-8A37-46D4-8FE7-BD4E4376200C","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",599,"5.007",0,"Operation timed out after 5001 milliseconds with 0 out of 0 bytes received",POST
+"2020-01-01T00:04:12.026+0000",100000000002,100000000005,"98D85AB7-34DA-44BA-8710-0342EB0978D8","urn:nhs:names:services:gpconnect:fhir:operation:gpc.getcarerecord",599,"5.007",0,"Operation timed out after 5000 milliseconds with 0 out of 0 bytes received",POST
+"2020-01-01T20:58:38.027+0000",100000000002,100000000005,"F4949CAC-018A-4390-A010-A3BD948B38F4","urn:nhs:names:services:gpconnect:fhir:rest:read:metadata-1",403,"0.127",575,Forbidden,GET

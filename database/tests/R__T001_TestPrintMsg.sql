@@ -1,0 +1,1 @@
+EXEC dbo.PrintMsg 'Test message';

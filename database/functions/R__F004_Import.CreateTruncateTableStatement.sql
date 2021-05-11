@@ -1,0 +1,9 @@
+CREATE OR ALTER FUNCTION Import.CreateTruncateTableStatement
+(
+	@TableName VARCHAR(200)
+)
+RETURNS VARCHAR(1000)
+AS
+BEGIN
+	RETURN 'TRUNCATE TABLE ' + @TableName + ';';
+END;

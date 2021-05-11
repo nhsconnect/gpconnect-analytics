@@ -1,0 +1,37 @@
+name: continuous-integration
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:latest
+        ports:
+          - 1433:1433
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: StrongP@ssword1
+
+    steps:
+      - name: Print the current branch name
+        run: echo "$GITHUB_REF"
+
+      - name: Check out branch
+        uses: actions/checkout@main
+
+      - name: Set up dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      
+      - name: Build dotnet solution
+        run: dotnet build source/gpconnect-analytics.sln
+
+      - name: Build docker database patcher image
+        run: docker build -t gpconnect-analytics-dbpatcher database/.
+
+      - name: Run docker database patcher image
+        run: docker run --rm --network="host" gpconnect-analytics-dbpatcher -url="jdbc:sqlserver://localhost:1433;Database=master" -user=sa -password=StrongP@ssword1 -locations=filesystem:sql,filesystem:sql-tests migrate
