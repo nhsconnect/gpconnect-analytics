@@ -73,7 +73,7 @@ as
         FileId
     )
     select distinct
-        newA.asid,
+        isnull(newA.asid, ''),
         'UNKNOWN',
         'UNKNOWN',
         'UNKNOWN',
@@ -137,8 +137,8 @@ as
     )
     select
         convert(datetimeoffset, s._time),
-        s.sspFrom,
-        s.sspTo,
+        isnull(s.sspFrom, ''),
+        isnull(s.sspTo, ''),
         s.SspTraceId,
         i.InteractionId,
         s.responseCode,
