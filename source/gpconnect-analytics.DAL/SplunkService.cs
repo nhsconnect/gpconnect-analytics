@@ -18,20 +18,14 @@ namespace gpconnect_analytics.DAL
         private readonly IConfigurationService _configurationService;
         private readonly IDataService _dataService;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly SplunkClient _splunkClient;
         private readonly ILogger<SplunkService> _logger;
-        private readonly FilePathConstants _filePathConstants;
-        private readonly List<SplunkInstance> _splunkInstances;
+        private SplunkClient _splunkClient;
+        private FilePathConstants _filePathConstants;
+        private List<SplunkInstance> _splunkInstances;
 
         public SplunkService(IConfigurationService configurationService, IDataService dataService, IHttpClientFactory httpClientFactory, ILogger<SplunkService> logger)
         {
             _configurationService = configurationService;
-            if (_configurationService != null)
-            {
-                _filePathConstants = _configurationService.GetFilePathConstants().Result;
-                _splunkClient = _configurationService.GetSplunkClientConfiguration().Result;
-                _splunkInstances = _configurationService.GetSplunkInstances().Result;
-            }
             _dataService = dataService;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
@@ -41,6 +35,10 @@ namespace gpconnect_analytics.DAL
         {
             try
             {
+                _filePathConstants = await _configurationService.GetFilePathConstants();
+                _splunkClient = await _configurationService.GetSplunkClientConfiguration();
+                _splunkInstances = await _configurationService.GetSplunkInstances();
+
                 var splunkInstance = _splunkInstances.FirstOrDefault(x => x.Source == Helpers.SplunkInstances.cloud.ToString());
                 var extractDetails = await GetNextExtractDetails(fileType.FileTypeId);
                 var extractResponseMessage = new ExtractResponse();

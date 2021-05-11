@@ -13,17 +13,18 @@ namespace gpconnect_analytics.DAL
     {
         private readonly IDataService _dataService;
         private readonly IConfigurationService _configurationService;
-        private readonly List<FileType> _fileTypes;
+        private List<FileType> _fileTypes;
 
         public ImportService(IDataService dataService, IConfigurationService configurationService)
         {
             _dataService = dataService;
             _configurationService = configurationService;
-            _fileTypes = _configurationService.GetFileTypes().Result;
         }
 
         public async Task<int> AddFile(string filePath)
         {
+            _fileTypes = await _configurationService.GetFileTypes();
+
             var directoryName = filePath.Split(new char[] { '\\' })[0];
             var fileTypeId = _fileTypes.FirstOrDefault(x => x.DirectoryName == directoryName).FileTypeId;
 
