@@ -281,7 +281,8 @@ as
 		commit transaction InstallFileTransaction;
     end try
     begin catch
-		exec dbo.PrintMsg '- Error occurred, rolling back'
+        exec dbo.PrintMsg '';
+        exec dbo.PrintMsg '- Error occurred, rolling back';
 
         rollback transaction InstallFileTransaction;
 

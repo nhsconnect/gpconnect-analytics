@@ -86,7 +86,7 @@ as
         select distinct
             s.sspFrom as asid
         from Import.SspTransactionStaging s
-	    left outer join Data.AsidLookup a on s.sspFrom = a.Asid
+	    left outer join Data.AsidLookup a on isnull(s.sspFrom, '') = a.Asid
 	    where a.Asid is null
 
         union
@@ -94,7 +94,7 @@ as
         select distinct
             s.SspTo as asid
         from Import.SspTransactionStaging s
-	    left outer join Data.AsidLookup a on s.sspTo = a.Asid
+	    left outer join Data.AsidLookup a on isnull(s.sspTo, '') = a.Asid
 	    where a.Asid is null
     ) newA;
 
