@@ -16,7 +16,8 @@ create table Import.[File]
 	InstalledDate datetime2 null,
 	RowsAdded integer null,
 	RowsUpdated integer null,
-	InstallDuration integer null
+	InstallDuration integer null,
+	RowsInstalledPerSecond as (RowsAdded + RowsUpdated) / InstallDuration
 
 	constraint PK_Import_File_FileId primary key clustered (FileId),
 	constraint FK_Import_File_FileTypeId foreign key (FileTypeId) references Configuration.FileType (FileTypeId),
