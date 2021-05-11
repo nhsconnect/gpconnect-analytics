@@ -1,29 +1,35 @@
-CREATE OR ALTER FUNCTION Import.CreateBulkInsertStatement
+if exists (select object_id('Import.CreateBulkInsertStatement'))
+	drop function Import.CreateBulkInsertStatement;
+
+go
+
+create function Import.CreateBulkInsertStatement
 (
-	@TableName VARCHAR(200),
-	@FilePath VARCHAR(500)
+	@TableName varchar(200),
+	@FilePath varchar(500)
 )
-RETURNS VARCHAR(1000)
-AS
-BEGIN
+returns varchar(1000)
+as
+begin
 
-	DECLARE @DataSourceName VARCHAR(255) = ISNULL(TRIM((SELECT SqlExternalDataSourceName FROM Configuration.BlobStorage)), '');
+	declare @DataSourceName varchar(255) = isnull(trim((select SqlExternalDataSourceName from Configuration.BlobStorage)), '');
 
-	RETURN
-		'BULK INSERT ' + @TableName + ' ' +
-		'FROM ''' + @FilePath + ''' ' +
-		'WITH ' +
+	return
+		'bulk insert ' + @TableName + ' ' +
+		'from ''' + @FilePath + ''' ' +
+		'with ' +
 		'( ' +
-		CASE 
-			WHEN @DataSourceName = '' THEN ''
-			ELSE 'DATA_SOURCE = ''' + @DataSourceName + ''', '
-		END +
-		'FORMAT = ''CSV'', ' +
-		'CODEPAGE = 65001, ' +
-		'FIRSTROW = 2, ' +
-		'ROWTERMINATOR = ''0x0a'', ' +
-		'FIELDQUOTE = ''"'', ' +
-		'TABLOCK, ' +
-		'FIELDTERMINATOR = '','' ' +
+		case 
+			when @DataSourceName = '' then ''
+			else 'data_source = ''' + @DataSourceName + ''', '
+		end +
+		'format = ''csv'', ' +
+		'codepage = 65001, ' +
+		'firstrow = 2, ' +
+		'rowterminator = ''0x0a'', ' +
+		'fieldquote = ''"'', ' +
+		'tablock, ' +
+		'fieldterminator = '','' ' +
 		');';
-END
+
+end;

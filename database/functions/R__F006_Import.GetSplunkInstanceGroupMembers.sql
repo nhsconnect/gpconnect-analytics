@@ -1,15 +1,19 @@
-CREATE OR ALTER FUNCTION Import.GetSplunkInstanceGroupMembers
+if exists (select object_id('Import.GetSplunkInstanceGroupMembers'))
+	drop function Import.GetSplunkInstanceGroupMembers;
+
+go
+
+create function Import.GetSplunkInstanceGroupMembers
 (
-	@SplunkInstance VARCHAR(200)
+	@SplunkInstance varchar(200)
 )
-RETURNS TABLE
-AS
-	RETURN 
-	    SELECT 
-	        SplunkInstance2.SplunkInstance
-    	FROM
-			Configuration.SplunkInstance SplunkInstance 
-    		INNER JOIN Configuration.SplunkInstance SplunkInstance2 on SplunkInstance.SplunkInstanceGroup = SplunkInstance2.SplunkInstanceGroup
-    	WHERE
-			SplunkInstance.SplunkInstance = @SplunkInstance;
+returns table
+as
+
+	return 
+	    select 
+	        s2.SplunkInstance
+    	from Configuration.SplunkInstance s 
+    	inner join Configuration.SplunkInstance s2 on s.SplunkInstanceGroup = s2.SplunkInstanceGroup
+    	where s.SplunkInstance = @SplunkInstance;
 

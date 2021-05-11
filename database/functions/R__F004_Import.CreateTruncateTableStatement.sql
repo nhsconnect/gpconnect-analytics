@@ -1,9 +1,16 @@
-CREATE OR ALTER FUNCTION Import.CreateTruncateTableStatement
+if exists (select object_id('Import.CreateTruncateTableStatement'))
+	drop function Import.CreateTruncateTableStatement;
+
+go
+
+create function Import.CreateTruncateTableStatement
 (
-	@TableName VARCHAR(200)
+	@TableName varchar(200)
 )
-RETURNS VARCHAR(1000)
-AS
-BEGIN
-	RETURN 'TRUNCATE TABLE ' + @TableName + ';';
-END;
+returns varchar(1000)
+as
+begin
+
+	return 'truncate table ' + @TableName + ';';
+
+end;

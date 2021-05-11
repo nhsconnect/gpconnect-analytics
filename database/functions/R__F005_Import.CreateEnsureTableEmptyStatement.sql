@@ -1,18 +1,25 @@
-CREATE OR ALTER FUNCTION Import.CreateEnsureTableEmptyStatement
+if exists (select object_id('Import.CreateEnsureTableEmptyStatement'))
+	drop function Import.CreateEnsureTableEmptyStatement;
+
+go
+
+create function Import.CreateEnsureTableEmptyStatement
 (
-	@TableName VARCHAR(200)
+	@TableName varchar(200)
 )
-RETURNS VARCHAR(1000)
-AS
-BEGIN
-	RETURN 
-		'IF EXISTS ' +
+returns varchar(1000)
+as
+begin
+	
+	return 
+		'if exists ' +
 		'( ' +
-		'SELECT * ' +
-		'FROM ' + @TableName + 
+		'select * ' +
+		'from ' + @TableName + 
 		') ' +
-		'BEGIN ' +
-		'DECLARE @msg VARCHAR(8000) = ''' + @TableName + ' is not empty''; ' +
-		'EXEC dbo.ThrowError @msg; ' +
-		'END;';
-END;
+		'begin ' +
+		'declare @msg varchar(8000) = ''' + @TableName + ' is not empty''; ' +
+		'exec dbo.ThrowError @msg; ' +
+		'end;';
+
+end;
