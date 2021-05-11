@@ -4,8 +4,10 @@ using gpconnect_analytics.DTO.Response.Configuration;
 using gpconnect_analytics.DTO.Response.Splunk;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -18,21 +20,29 @@ namespace gpconnect_analytics.DAL
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly SplunkClient _splunkClient;
         private readonly ILogger<SplunkService> _logger;
+        private readonly FilePathConstants _filePathConstants;
+        private readonly List<SplunkInstance> _splunkInstances;
 
         public SplunkService(IConfigurationService configurationService, IDataService dataService, IHttpClientFactory httpClientFactory, ILogger<SplunkService> logger)
         {
             _configurationService = configurationService;
+            if (_configurationService != null)
+            {
+                _filePathConstants = _configurationService.GetFilePathConstants().Result;
+                _splunkClient = _configurationService.GetSplunkClientConfiguration().Result;
+                _splunkInstances = _configurationService.GetSplunkInstances().Result;
+            }
             _dataService = dataService;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            _splunkClient = _configurationService.GetSplunkClientConfiguration().Result;
         }
 
-        public async Task<ExtractResponse> DownloadCSV(int fileTypeId)
+        public async Task<ExtractResponse> DownloadCSV(FileType fileType)
         {
             try
             {
-                var extractDetails = await GetNextExtractDetails(fileTypeId);
+                var splunkInstance = _splunkInstances.FirstOrDefault(x => x.Source == Helpers.SplunkInstances.cloud.ToString());
+                var extractDetails = await GetNextExtractDetails(fileType.FileTypeId);
                 var extractResponseMessage = new ExtractResponse();
                 if (extractDetails != null)
                 {
@@ -45,6 +55,7 @@ namespace gpconnect_analytics.DAL
                     extractResponseMessage.ExtractResponseMessage = response;
                     extractResponseMessage.ExtractStatusCode = response.StatusCode;
                     extractResponseMessage.ExtractRequestDetails = extractDetails;
+                    extractResponseMessage.FilePath = ConstructFilePath(splunkInstance, fileType, extractDetails);
                 }
                 else
                 {
@@ -62,6 +73,27 @@ namespace gpconnect_analytics.DAL
                 _logger.LogError(exc, "An error occurred in trying to execute a GET request");
                 throw;
             }
+        }
+
+
+        private string ConstructFilePath(SplunkInstance splunkInstance, FileType fileType, Extract extractRequestDetails)
+        {
+            var filePathString = new StringBuilder();
+            filePathString.Append(fileType.DirectoryName);
+            filePathString.Append(_filePathConstants.PathSeparator);
+            filePathString.Append(_filePathConstants.ProjectNameFilePrefix);
+            filePathString.Append(_filePathConstants.ComponentSeparator);
+            filePathString.Append(fileType.FileTypeFilePrefix);
+            filePathString.Append(_filePathConstants.ComponentSeparator);
+            filePathString.Append(extractRequestDetails.QueryFromDate);
+            filePathString.Append(_filePathConstants.ComponentSeparator);
+            filePathString.Append(extractRequestDetails.QueryToDate);
+            filePathString.Append(_filePathConstants.ComponentSeparator);
+            filePathString.Append(splunkInstance.Source);
+            filePathString.Append(_filePathConstants.ComponentSeparator);
+            filePathString.Append(DateTimeOffset.UtcNow.ToString());
+            filePathString.Append(_filePathConstants.FileExtension);
+            return filePathString.ToString();
         }
 
         private async Task<Extract> GetNextExtractDetails(int fileTypeId)
