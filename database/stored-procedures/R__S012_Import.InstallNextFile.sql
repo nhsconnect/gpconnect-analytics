@@ -282,7 +282,7 @@ as
     end try
     begin catch
 		exec dbo.PrintMsg '- Error occurred, rolling back'
-        
+
         rollback transaction InstallFileTransaction;
 
         exec dbo.PrintMsg '    Rolled back'

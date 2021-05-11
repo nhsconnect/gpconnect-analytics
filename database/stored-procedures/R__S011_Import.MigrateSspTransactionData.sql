@@ -8,6 +8,9 @@ create procedure Import.MigrateSspTransactionData
     @RowsAdded integer output,
     @RowsUpdated integer output
 as
+
+    declare @Msg varchar(8000);
+
     -----------------------------------------------------
     -- check proc is called as part of install
     -----------------------------------------------------
@@ -26,6 +29,9 @@ as
     -----------------------------------------------------
     -- capture any new interactions found
     -----------------------------------------------------
+    exec dbo.PrintMsg '    Scanning for unrecognised interactions';
+
+
     insert into Data.Interaction
     (
         InteractionId,
@@ -45,36 +51,16 @@ as
         where i.InteractionName is null
     )  iNew;
 
-    -----------------------------------------------------
-    -- capture any unknown SspFrom asids found
-    -----------------------------------------------------
-    insert into Data.AsidLookup
-    (
-        Asid,
-        OrgName,
-        OdsCode,
-        OrgType,
-        Postcode,
-        SupplierName,
-        ProductName,
-        FileId
-    )
-    select distinct
-        s.sspFrom,
-        'UNKNOWN',
-        'UNKNOWN',
-        'UNKNOWN',
-        '',
-        'UNKNOWN',
-        'UNKNOWN',
-        @FileId
-    from Import.SspTransactionStaging s
-	left outer join Data.AsidLookup a on s.sspFrom = a.Asid
-    where a.Asid is null;
+    
+    set @Msg = '    ' + convert(varchar, @@rowcount) + ' interactions found; adding to Data.Interaction';
+    exec dbo.PrintMsg @Msg;
 
     -----------------------------------------------------
-    -- capture any unknown SspTo asids found
+    -- capture any unknown asids found
     -----------------------------------------------------
+    exec dbo.PrintMsg '    Scanning for unrecognised ASIDs';
+
+
     insert into Data.AsidLookup
     (
         Asid,
@@ -87,7 +73,7 @@ as
         FileId
     )
     select distinct
-        s.sspTo,
+        newA.asid,
         'UNKNOWN',
         'UNKNOWN',
         'UNKNOWN',
@@ -95,21 +81,46 @@ as
         'UNKNOWN',
         'UNKNOWN',
         @FileId
-    from Import.SspTransactionStaging s
-	left outer join Data.AsidLookup a on s.sspTo = a.Asid
-	where a.Asid is null;
+    from 
+    (
+        select distinct
+            s.sspFrom as asid
+        from Import.SspTransactionStaging s
+	    left outer join Data.AsidLookup a on s.sspFrom = a.Asid
+	    where a.Asid is null
+
+        union
+
+        select distinct
+            s.SspTo as asid
+        from Import.SspTransactionStaging s
+	    left outer join Data.AsidLookup a on s.sspTo = a.Asid
+	    where a.Asid is null
+    ) newA;
+
+
+    set @Msg = '    ' + convert(varchar, @@rowcount) + ' ASIDs found; adding to Data.AsidLookup';
+    exec dbo.PrintMsg @Msg;
 
     -----------------------------------------------------
     -- fix datetime offset into sql format
     -- (TODO is there a better way of doing this?)
     -----------------------------------------------------
+    exec dbo.PrintMsg '    Fixing datetime format for migration';
+
     update Import.SspTransactionStaging
     set 
         _time = replace(_time, '+0000', '+00:00');
 
+    update Import.SspTransactionStaging
+    set 
+        _time = replace(_time, '+0100', '+01:00');
+
     -----------------------------------------------------
     -- install file data to destination table
     -----------------------------------------------------
+    exec dbo.PrintMsg '    Inserting data into destination table';
+
     insert into Data.SspTransaction
     (
         [Time],
@@ -141,3 +152,7 @@ as
 
     set @RowsAdded = @@rowcount;
     set @RowsUpdated = 0;
+
+    set @Msg = '    ' + convert(varchar, @RowsAdded) + ' rows added to Data.SspTransaction';
+    exec dbo.PrintMsg @Msg;
+    exec dbo.PrintMsg '';
