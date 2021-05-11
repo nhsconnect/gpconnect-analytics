@@ -1,4 +1,4 @@
-if exists (select object_id('Import.DetermineNextExtract'))
+if (object_id('Import.DetermineNextExtract') is not null)
 	drop procedure Import.DetermineNextExtract;
 
 go

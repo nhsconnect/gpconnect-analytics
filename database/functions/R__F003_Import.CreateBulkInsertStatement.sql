@@ -1,4 +1,4 @@
-if exists (select object_id('Import.CreateBulkInsertStatement'))
+if (object_id('Import.CreateBulkInsertStatement') is not null)
 	drop function Import.CreateBulkInsertStatement;
 
 go

@@ -1,4 +1,4 @@
-if exists (select object_id('Configuration.GetSplunkInstances'))
+if (object_id('Configuration.GetSplunkInstances') is not null)
 	drop procedure Configuration.GetSplunkInstances;
 
 go

@@ -1,4 +1,4 @@
-if exists (select object_id('Import.MigrateAsidLookupData'))
+if (object_id('Import.MigrateAsidLookupData') is not null)
     drop procedure Import.MigrateAsidLookupData;
 
 go

@@ -1,4 +1,4 @@
-if exists (select object_id('Import.MigrateSspTransactionData'))
+if (object_id('Import.MigrateSspTransactionData') is not null)
     drop procedure Import.MigrateSspTransactionData;
 
 go

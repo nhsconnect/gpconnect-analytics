@@ -1,4 +1,4 @@
-if exists (select object_id('Import.CreateEnsureTableEmptyStatement'))
+if (object_id('Import.CreateEnsureTableEmptyStatement') is not null)
 	drop function Import.CreateEnsureTableEmptyStatement;
 
 go

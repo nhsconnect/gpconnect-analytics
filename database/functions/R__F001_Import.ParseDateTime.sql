@@ -1,4 +1,4 @@
-if exists (select object_id('Import.ParseDateTime'))
+if (object_id('Import.ParseDateTime') is not null)
 	drop function Import.ParseDateTime;
 
 go

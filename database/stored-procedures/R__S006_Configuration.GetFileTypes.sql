@@ -1,4 +1,4 @@
-if exists (select object_id('Configuration.GetFileTypes'))
+if (object_id('Configuration.GetFileTypes') is not null)
 	drop procedure Configuration.GetFileTypes;
 
 go

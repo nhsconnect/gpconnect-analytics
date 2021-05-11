@@ -1,4 +1,4 @@
-if exists (select object_id('Import.CreateTruncateTableStatement'))
+if (object_id('Import.CreateTruncateTableStatement') is not null)
 	drop function Import.CreateTruncateTableStatement;
 
 go

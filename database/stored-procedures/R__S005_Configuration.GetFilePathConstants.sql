@@ -1,4 +1,4 @@
-if exists (select object_id('Configuration.GetFilePathConstants'))
+if (object_id('Configuration.GetFilePathConstants') is not null)
 	drop procedure Configuration.GetFilePathConstants;
 
 go

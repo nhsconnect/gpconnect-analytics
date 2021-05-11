@@ -1,4 +1,4 @@
-if exists (select object_id('dbo.ThrowError'))
+if (object_id('dbo.ThrowError') is not null)
 	drop procedure dbo.ThrowError;
 
 go

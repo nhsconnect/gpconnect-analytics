@@ -1,17 +1,22 @@
-CREATE OR ALTER VIEW Data.SspTransactionView
-AS
+if (object_id('Data.SspTransactionView') is not null)
+    drop view Import.WriteLog;
 
-    SELECT 
+go
+
+create view Data.SspTransactionView
+as
+
+    select 
         s.SspTransactionId,
         s.Time,
         s.FromAsid,
-        aFrom.OdsCode AS FromOdsCode,
-        aFrom.OrgName AS FromOrgName,
-        aFrom.SupplierName AS FromSupplierName,
+        aFrom.OdsCode as FromOdsCode,
+        aFrom.OrgName as FromOrgName,
+        aFrom.SupplierName as FromSupplierName,
         s.ToAsid,
-        aTo.OdsCode AS ToOdsCode,
-        aTo.OrgName AS ToOrgName,
-        aTo.SupplierName AS ToSupplierName,
+        aTo.OdsCode as ToOdsCode,
+        aTo.OrgName as ToOrgName,
+        aTo.SupplierName as ToSupplierName,
         s.SspTraceId,
         i.InteractionName,
         s.ResponseCode,
@@ -19,8 +24,8 @@ AS
         s.ResponseSize,
         s.ResponseErrorMessage,
         s.Method
-    FROM Data.SspTransaction s
-    INNER JOIN Data.Interaction i ON s.InteractionId = i.InteractionId
-    INNER JOIN Data.AsidLookup aFrom ON s.FromAsid = aFrom.Asid
-    INNER JOIN Data.AsidLookup aTo ON s.ToAsid = aTo.Asid
+    from Data.SspTransaction s
+    inner join Data.Interaction i on s.InteractionId = i.InteractionId
+    inner join Data.AsidLookup aFrom on s.FromAsid = aFrom.Asid
+    inner join Data.AsidLookup aTo on s.ToAsid = aTo.Asid
 

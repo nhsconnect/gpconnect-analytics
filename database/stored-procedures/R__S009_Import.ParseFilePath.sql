@@ -1,16 +1,16 @@
-if exists (select object_id('Import.ParseFilePath'))
+if (object_id('Import.ParseFilePath') is not null)
 	drop procedure Import.ParseFilePath;
 
 go
 
 create procedure Import.ParseFilePath
 (
-	@FilePath VARCHAR(500),
-	@FileTypeId SMALLINT,
-	@QueryFromDate DATETIME2 OUTPUT,
-	@QueryToDate DATETIME2 OUTPUT,
-	@SplunkInstance VARCHAR(10) OUTPUT,
-	@ExtractDate DATETIME2 OUTPUT
+	@FilePath varchar(500),
+	@FileTypeId smallint,
+	@QueryFromDate datetime2 output,
+	@QueryToDate datetime2 output,
+	@SplunkInstance varchar(10) output,
+	@ExtractDate datetime2 output
 )
 /*
 	General format:
@@ -25,147 +25,144 @@ AS
 	-----------------------------------------------------
 	-- sanity check parameters
 	-----------------------------------------------------
-	IF (TRIM(ISNULL(@FilePath, '')) = '')
-	BEGIN
-		EXEC dbo.ThrowError '@FilePath is empty';
-		RETURN;
-	END;
+	if (trim(isnull(@FilePath, '')) = '')
+	begin
+		exec dbo.ThrowError '@FilePath is empty';
+		return;
+	end;
 
-	IF NOT EXISTS
+	if not exists
 	(
-		SELECT *
-		FROM Configuration.FileType
-		WHERE FileTypeId = @FileTypeId
+		select *
+		from Configuration.FileType
+		where FileTypeId = @FileTypeId
 	)
-	BEGIN
-		EXEC dbo.ThrowError '@FileTypeId not recognised';
-		RETURN;
-	END;
+	begin
+		exec dbo.ThrowError '@FileTypeId not recognised';
+		return;
+	end;
 
 	-----------------------------------------------------
 	-- get file constants
 	-----------------------------------------------------
-	DECLARE @PathSeparator VARCHAR(1);
-	DECLARE @ProjectNameFilePrefix VARCHAR(50);
-	DECLARE @ComponentSeparator VARCHAR(1);
-	DECLARE @FileExtension VARCHAR(5);
+	declare @PathSeparator varchar(1);
+	declare @ProjectNameFilePrefix varchar(50);
+	declare @ComponentSeparator varchar(1);
+	declare @FileExtension varchar(5);
 
-	SELECT 
+	select 
 		@PathSeparator = PathSeparator,
 		@ProjectNameFilePrefix = ProjectNameFilePrefix,
 		@ComponentSeparator = ComponentSeparator,
 		@FileExtension = FileExtension
-	FROM
-		Configuration.FilePathConstants;
+	from Configuration.FilePathConstants;
 
 	-----------------------------------------------------
 	-- get file type variables
 	-----------------------------------------------------
-	DECLARE @DirectoryName VARCHAR(200);
-	DECLARE @ExtractNameFilePrefix VARCHAR(50);
+	declare @DirectoryName VARCHAR(200);
+	declare @ExtractNameFilePrefix VARCHAR(50);
 
-	SELECT
+	select
 		@DirectoryName = DirectoryName,
 		@ExtractNameFilePrefix = FileTypeFilePrefix
-	FROM 
-		Configuration.FileType
-	WHERE
-		FileTypeId = @FileTypeId;
+	from Configuration.FileType
+	where FileTypeId = @FileTypeId;
 
 	-----------------------------------------------------
 	-- validate and remove @DirectoryName, @PathSeperator
 	-----------------------------------------------------
-	IF (@FilePath NOT LIKE (@DirectoryName + @PathSeparator + '%'))
-	BEGIN
-		EXEC dbo.ThrowError '@FilePath has unexpected directory name';
-		RETURN;
-	END;
+	if (@FilePath not like (@DirectoryName + @PathSeparator + '%'))
+	begin
+		exec dbo.ThrowError '@FilePath has unexpected directory name';
+		return;
+	end;
 
-	SET @FilePath = SUBSTRING(@FilePath, LEN(@DirectoryName + @PathSeparator) + 1, LEN(@FilePath));
+	set @FilePath = substring(@FilePath, len(@DirectoryName + @PathSeparator) + 1, len(@FilePath));
 
 	-----------------------------------------------------
 	-- validate and remove @FileExtension
 	-----------------------------------------------------
-	IF (@FilePath not like ('%' + @FileExtension))
-	BEGIN
-		EXEC dbo.ThrowError '@FileName has unexpected file name extension';
-		RETURN;
-	END;
+	if (@FilePath not like ('%' + @FileExtension))
+	begin
+		exec dbo.ThrowError '@FileName has unexpected file name extension';
+		return;
+	end;
 
-	SET @FilePath = SUBSTRING(@FilePath, 1, LEN(@FilePath) - LEN(@FileExtension));
+	set @FilePath = substring(@FilePath, 1, len(@FilePath) - len(@FileExtension));
 
 	-----------------------------------------------------
 	-- validate @ProjectNameFilePrefix value
 	-----------------------------------------------------
-	IF (ISNULL(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 1), '') != @ProjectNameFilePrefix)
-	BEGIN
-		EXEC dbo.ThrowError '@FilePath has unexpected PROJECTNAME value';
-		RETURN;
-	END;
+	if (isnull(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 1), '') != @ProjectNameFilePrefix)
+	begin
+		exec dbo.ThrowError '@FilePath has unexpected PROJECTNAME value';
+		return;
+	end;
 
 	-----------------------------------------------------
 	-- validate @ImportNameFilePrefix value
 	-----------------------------------------------------
-	IF (ISNULL(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 2), '') != @ExtractNameFilePrefix)
-	BEGIN
-		EXEC dbo.ThrowError '@FilePath has unexpected IMPORTNAME value';
-		RETURN;
-	END;
+	if (isnull(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 2), '') != @ExtractNameFilePrefix)
+	begin
+		exec dbo.ThrowError '@FilePath has unexpected IMPORTNAME value';
+		return;
+	end;
 
 	-----------------------------------------------------
 	-- parse @QueryFromDate value
 	-----------------------------------------------------
-	DECLARE @QueryFromDateString VARCHAR(50) = ISNULL(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 3), '');
+	declare @QueryFromDateString varchar(50) = isnull(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 3), '');
 
-	BEGIN TRY
-		SET @QueryFromDate = Import.ParseDateTime(@QueryFromDateString);
-	END TRY
-	BEGIN CATCH
-		DECLARE @msg1 VARCHAR(1000) = 'QUERYDATEFROM could not be parsed from @FileName.  Error was "' + ERROR_MESSAGE() + '"';
-		EXEC dbo.ThrowError @msg1;
-		RETURN;
-	END CATCH;
+	begin try
+		set @QueryFromDate = Import.ParseDateTime(@QueryFromDateString);
+	end try
+	begin catch
+		declare @Msg1 varchar(1000) = 'QUERYDATEFROM could not be parsed from @FileName.  Error was "' + error_message() + '"';
+		exec dbo.ThrowError @Msg1;
+		return;
+	end catch;
 
 	-----------------------------------------------------
 	-- parse @QueryToDate value
 	-----------------------------------------------------
-	DECLARE @QueryToDateString VARCHAR(50) = ISNULL(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 4), '');
+	declare @QueryToDateString VARCHAR(50) = ISNULL(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 4), '');
 
-	BEGIN TRY
-		SET @QueryToDate = Import.ParseDateTime(@QueryToDateString);
-	END TRY
-	BEGIN CATCH
-		DECLARE @msg2 VARCHAR(1000) = 'QUERYTODATE could not be parsed from @FileName.  Error was "' + ERROR_MESSAGE() + '"';
-		EXEC dbo.ThrowError @msg2;
-		RETURN;
-	END CATCH;
+	begin try
+		set @QueryToDate = Import.ParseDateTime(@QueryToDateString);
+	end try
+	begin catch
+		declare @Msg2 varchar(1000) = 'QUERYTODATE could not be parsed from @FileName.  Error was "' + error_message() + '"';
+		exec dbo.ThrowError @Msg2;
+		return;
+	end catch;
 
 	-----------------------------------------------------
 	-- parse and validate @SplunkInstance value
 	-----------------------------------------------------
-	SET @SplunkInstance = ISNULL(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 5), '');
+	set @SplunkInstance = isnull(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 5), '');
 
-	IF NOT EXISTS
+	if not exists
 	(
-		SELECT *
-		FROM Configuration.SplunkInstance
-		WHERE SplunkInstance = @SplunkInstance
+		select *
+		from Configuration.SplunkInstance
+		where SplunkInstance = @SplunkInstance
 	)
-	BEGIN
-		EXEC dbo.ThrowError '@FilePath has unrecognised SPLUNKINSTANCE value';
-		RETURN;
-	END;
+	begin
+		exec dbo.ThrowError '@FilePath has unrecognised SPLUNKINSTANCE value';
+		return;
+	end;
 
 	-----------------------------------------------------
 	-- parse @ExtractDate value
 	-----------------------------------------------------
-	DECLARE @ExtractDateString VARCHAR(50) = ISNULL(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 6), '');
+	declare @ExtractDateString varchar(50) = isnull(Import.StringSplitGetPiece(@FilePath, @ComponentSeparator, 6), '');
 
-	BEGIN TRY
-		SET @ExtractDate = Import.ParseDateTime(@ExtractDateString);
-	END TRY
-	BEGIN CATCH
-		DECLARE @msg3 VARCHAR(1000) = 'EXTRACTDATE could not be parsed from @FileName.  Error was "' + ERROR_MESSAGE() + '"';
-		EXEC dbo.ThrowError @msg3;
-		RETURN;
-	END CATCH;
+	begin try
+		set @ExtractDate = Import.ParseDateTime(@ExtractDateString);
+	end try
+	begin catch
+		declare @msg3 varchar(1000) = 'EXTRACTDATE could not be parsed from @FileName.  Error was "' + error_message() + '"';
+		exec dbo.ThrowError @msg3;
+		return;
+	end catch;

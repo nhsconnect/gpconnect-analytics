@@ -1,4 +1,4 @@
-if exists (select object_id('Configuration.GetBlobStorageConfiguration'))
+if (object_id('Configuration.GetBlobStorageConfiguration') is not null)
 	drop procedure Configuration.GetBlobStorageConfiguration;
 
 go

@@ -1,4 +1,4 @@
-if exists (select object_id('Configuration.GetEmailConfiguration'))
+if (object_id('Configuration.GetEmailConfiguration') is not null)
 	drop procedure Configuration.GetEmailConfiguration;
 
 go

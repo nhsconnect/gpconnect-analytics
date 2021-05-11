@@ -1,4 +1,4 @@
-if exists (select object_id('Import.StringSplitGetPiece'))
+if (object_id('Import.StringSplitGetPiece') is not null)
 	drop function Import.StringSplitGetPiece;
 
 go

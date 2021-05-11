@@ -1,4 +1,4 @@
-if exists (select object_id('Import.WriteLog'))
+if (object_id('Import.WriteLog') is not null)
 	drop procedure Import.WriteLog;
 
 go
@@ -14,6 +14,7 @@ create procedure Logging.WriteLog
 	@Exception varchar(8000)
 )
 as
+
 	insert into Logging.Log
 	(
 		Application,

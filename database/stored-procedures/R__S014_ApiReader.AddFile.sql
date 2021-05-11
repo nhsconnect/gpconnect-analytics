@@ -1,4 +1,4 @@
-if exists (select object_id('Import.AddFile'))
+if (object_id('Import.AddFile') is not null)
 	drop procedure Import.AddFile;
 
 go

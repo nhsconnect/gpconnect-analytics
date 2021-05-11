@@ -1,4 +1,4 @@
-if exists (select object_id('dbo.PrintMsg'))
+if (object_id('dbo.PrintMsg') is not null)
 	drop procedure dbo.PrintMsg;
 
 go
