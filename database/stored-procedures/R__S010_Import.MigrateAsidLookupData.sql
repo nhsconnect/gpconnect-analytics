@@ -40,13 +40,13 @@ AS
         FileId
     )
     select
-        AsidLookupStaging.ASID,
-        AsidLookupStaging.OrgName,
-        AsidLookupStaging.NACS,
-        AsidLookupStaging.OrgType,
-        AsidLookupStaging.PostCode,
-        isnull(AsidLookupStaging.MName, ''),
-        isnull(AsidLookupStaging.PName, ''),
+        s.ASID,
+        s.OrgName,
+        s.NACS,
+        s.OrgType,
+        s.PostCode,
+        isnull(s.MName, ''),
+        isnull(s.PName, ''),
         @FileId
     from Import.AsidLookupStaging s
 	left outer join Data.AsidLookup a on s.ASID = a.Asid
@@ -67,12 +67,12 @@ AS
     inner join Import.AsidLookupStaging s on a.Asid = s.ASID
     where
     (
-        AsidLookup.OrgName != AsidLookupStaging.OrgName
-        or AsidLookup.OdsCode != AsidLookupStaging.NACS
-        or AsidLookup.OrgType != AsidLookupStaging.OrgType
-        or AsidLookup.Postcode != AsidLookupStaging.PostCode
-        or AsidLookup.SupplierName != AsidLookupStaging.MName
-        or AsidLookup.ProductName != AsidLookupStaging.PName
+        a.OrgName != s.OrgName
+        or a.OdsCode != s.NACS
+        or a.OrgType != s.OrgType
+        or a.Postcode != s.PostCode
+        or a.SupplierName != s.MName
+        or a.ProductName != s.PName
     );
 
     set @RowsUpdated = @@rowcount;
