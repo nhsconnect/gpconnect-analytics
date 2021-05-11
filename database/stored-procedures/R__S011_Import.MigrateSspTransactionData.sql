@@ -60,7 +60,7 @@ as
         FileId
     )
     select distinct
-        SspTransactionStaging.sspFrom,
+        s.sspFrom,
         'UNKNOWN',
         'UNKNOWN',
         'UNKNOWN',
@@ -70,7 +70,7 @@ as
         @FileId
     from Import.SspTransactionStaging s
 	left outer join Data.AsidLookup a on s.sspFrom = a.Asid
-    where AsidLookup.Asid is null;
+    where a.Asid is null;
 
     -----------------------------------------------------
     -- capture any unknown SspTo asids found
@@ -96,15 +96,14 @@ as
         'UNKNOWN',
         @FileId
     from Import.SspTransactionStaging s
-	left outer join Data.AsidLookup AsidLookup on s.sspTo = a.Asid
-	where AsidLookup.Asid is null;
+	left outer join Data.AsidLookup a on s.sspTo = a.Asid
+	where a.Asid is null;
 
     -----------------------------------------------------
     -- fix datetime offset into sql format
     -- (TODO is there a better way of doing this?)
     -----------------------------------------------------
-    update 
-		Import.SspTransactionStaging
+    update Import.SspTransactionStaging
     set 
         _time = replace(_time, '+0000', '+00:00');
 
