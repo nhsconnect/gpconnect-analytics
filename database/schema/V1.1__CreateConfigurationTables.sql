@@ -3,22 +3,22 @@
 */
 
 
-CREATE TABLE Configuration.SplunkInstance
+create table Configuration.SplunkInstance
 (
-	SplunkInstance VARCHAR(10) NOT NULL,
-    SplunkInstanceGroup VARCHAR(10) NOT NULL
+	SplunkInstance varchar(10) not null,
+    SplunkInstanceGroup varchar(10) not null
 
-	CONSTRAINT PK_Configuration_SplunkInstance_SplunkInstance PRIMARY KEY CLUSTERED (SplunkInstance),
-    CONSTRAINT CK_Configuration_SplunkInstance_SplunkInstance CHECK (TRIM(SplunkInstance) != ''),
-    CONSTRAINT CK_Configuration_SplunkInstance_SplunkInstance_Group CHECK (TRIM(SplunkInstanceGroup) != '')
+	constraint PK_Configuration_SplunkInstance_SplunkInstance primary key clustered (SplunkInstance),
+    constraint CK_Configuration_SplunkInstance_SplunkInstance check (trim(SplunkInstance) != ''),
+    constraint CK_Configuration_SplunkInstance_SplunkInstance_Group check (trim(SplunkInstanceGroup) != '')
 );
 
-INSERT INTO Configuration.SplunkInstance 
+insert into Configuration.SplunkInstance 
 (
 	SplunkInstance,
     SplunkInstanceGroup
 ) 
-VALUES
+values
 (
     'cloud',
     'cloud'
@@ -32,19 +32,19 @@ VALUES
     'spine'
 );
 
-CREATE TABLE Configuration.FilePathConstants
+create table Configuration.FilePathConstants
 (
-    SingleRowLock BIT NOT NULL,
-    PathSeparator VARCHAR(1) NOT NULL,
-    ProjectNameFilePrefix VARCHAR(50) NOT NULL,
-    ComponentSeparator VARCHAR(1) NOT NULL,
-    FileExtension VARCHAR(5) NOT NULL
+    SingleRowLock bit not null,
+    PathSeparator varchar(1) not null,
+    ProjectNameFilePrefix varchar(50) not null,
+    ComponentSeparator varchar(1) not null,
+    FileExtension varchar(5) not null
 
-    CONSTRAINT PK_Configuration_FilePathConstants_SingleRowLock PRIMARY KEY CLUSTERED (SingleRowLock),
-    CONSTRAINT CK_Configuration_FilePathConstants_SingleRowLock CHECK (SingleRowLock = 1)
+    constraint PK_Configuration_FilePathConstants_SingleRowLock primary key clustered (SingleRowLock),
+    constraint CK_Configuration_FilePathConstants_SingleRowLock check (SingleRowLock = 1)
 );
 
-INSERT INTO Configuration.FilePathConstants
+insert into Configuration.FilePathConstants
 (
     SingleRowLock,
     PathSeparator,
@@ -52,7 +52,7 @@ INSERT INTO Configuration.FilePathConstants
     ComponentSeparator,
     FileExtension
 )
-VALUES
+values
 (
     1,
     '\',
@@ -61,23 +61,23 @@ VALUES
     '.csv'
 );
 
-CREATE TABLE Configuration.FileType
+create table Configuration.FileType
 (
-    FileTypeId SMALLINT NOT NULL,
-    DirectoryName VARCHAR(200) NOT NULL,
-    FileTypeFilePrefix VARCHAR(50) NOT NULL,
-    SplunkQuery VARCHAR(8000) NOT NULL,
-    QueryFromBaseDate DATETIME2 NOT NULL,
-    QueryPeriodHours INTEGER NOT NULL,
-    StagingTableName VARCHAR(200) NOT NULL
+    FileTypeId smallint not null,
+    DirectoryName varchar(200) not null,
+    FileTypeFilePrefix varchar(50) not null,
+    SplunkQuery varchar(8000) not null,
+    QueryFromBaseDate datetime2 not null,
+    QueryPeriodHours integer not null,
+    StagingTableName varchar(200) not null
 
-    CONSTRAINT PK_Configuration_FileType_FileTypeId PRIMARY KEY CLUSTERED (FileTypeId),
-    CONSTRAINT UQ_Configuration_FileType_DirectoryName UNIQUE (DirectoryName),
-    CONSTRAINT UQ_Configuration_FileType_FileTypeFilePrefix UNIQUE (FileTypeFilePrefix),
-    CONSTRAINT UQ_Configuration_FileType_StagingTableName UNIQUE (StagingTableName)
+    constraint PK_Configuration_FileType_FileTypeId primary key clustered (FileTypeId),
+    constraint UQ_Configuration_FileType_DirectoryName unique (DirectoryName),
+    constraint UQ_Configuration_FileType_FileTypeFilePrefix unique (FileTypeFilePrefix),
+    constraint UQ_Configuration_FileType_StagingTableName unique (StagingTableName)
 );
 
-INSERT INTO Configuration.FileType
+insert into Configuration.FileType
 (
     FileTypeId,
     DirectoryName,
@@ -87,13 +87,13 @@ INSERT INTO Configuration.FileType
     QueryPeriodHours,
     StagingTableName
 )
-VALUES
+values
 (
     1,
     'asid-lookup-data',
     'asidlookup',
     '| inputlookup asidLookup.csv',
-    CONVERT(DATETIME2, '2021-01-01 00:00:00'),
+    convert(datetime2, '2021-01-01 00:00:00'),
     24 * 7,
     'Import.AsidLookupStaging'
 ),
@@ -102,27 +102,27 @@ VALUES
     'ssp-transactions',
     'ssptrans',
     'index=spinevfmlog (logReference=SSP0001 OR logReference=SSP0004 OR logReference=SSP0012) | transaction internalID startswith=SSP0001 endswith=SSP0004 keepevicted=true maxspan=1h | table _time, sspFrom, sspTo, SspTraceId, interaction, responseCode, duration, responseSize, responseErrorMessage, method | sort 0 _time',
-    CONVERT(DATETIME2, '2020-01-01 00:00:00'),
+    convert(datetime2, '2020-01-01 00:00:00'),
     24,
     'Import.SspTransactionStaging'
 );
 
-CREATE TABLE Configuration.SplunkClient
+create table Configuration.SplunkClient
 (
-    SingleRowLock BIT NOT NULL,
-    HostName VARCHAR(500) NOT NULL,
-    HostPort INTEGER NOT NULL,
-    BaseUrl VARCHAR(1000) NOT NULL,
-    QueryParameters VARCHAR(1000) NOT NULL,
-    QueryTimeout SMALLINT NOT NULL,
-    SplunkInstance VARCHAR(10) NOT NULL
+    SingleRowLock bit not null,
+    HostName varchar(500) not null,
+    HostPort integer not null,
+    BaseUrl varchar(1000) not null,
+    QueryParameters varchar(1000) not null,
+    QueryTimeout smallint not null,
+    SplunkInstance varchar(10) not null
 
-    CONSTRAINT PK_Configuration_SplunkClient_SingleRowLock PRIMARY KEY (SingleRowLock),
-    CONSTRAINT CK_Configuration_SplunkClient_SingleRowLock CHECK (SingleRowLock = 1),
-    CONSTRAINT FK_Configuration_SplunkClient_SplunkInstance FOREIGN KEY (SplunkInstance) REFERENCES Configuration.SplunkInstance (SplunkInstance)
+    constraint PK_Configuration_SplunkClient_SingleRowLock primary key (SingleRowLock),
+    constraint CK_Configuration_SplunkClient_SingleRowLock check (SingleRowLock = 1),
+    constraint FK_Configuration_SplunkClient_SplunkInstance foreign key (SplunkInstance) references Configuration.SplunkInstance (SplunkInstance)
 );
 
-INSERT INTO Configuration.SplunkClient
+insert into Configuration.SplunkClient
 (
     SingleRowLock,
     HostName,
@@ -132,7 +132,7 @@ INSERT INTO Configuration.SplunkClient
     QueryTimeout,
     SplunkInstance
 )
-VALUES
+values
 (
     1,
     '***SET-HOST-NAME***',	
@@ -143,21 +143,21 @@ VALUES
     'cloud'
 );
 
-CREATE TABLE Configuration.BlobStorage
+create table Configuration.BlobStorage
 (
-	SingleRowLock BIT NOT NULL,
-	BlobPrimaryKey VARCHAR(1000) NOT NULL,
-	ConnectionString VARCHAR(1000) NOT NULL,
-	ContainerName VARCHAR(255) NOT NULL,
-    QueueName VARCHAR(255) NOT NULL,
-    SqlExternalDataSourceName VARCHAR(255) NOT NULL
+	SingleRowLock bit not null,
+	BlobPrimaryKey varchar(1000) not null,
+	ConnectionString varchar(1000) not null,
+	ContainerName varchar(255) not null,
+    QueueName varchar(255) not null,
+    SqlExternalDataSourceName varchar(255) not null
 
-	CONSTRAINT PK_Configuration_BlobStorage_SingleRowLock PRIMARY KEY CLUSTERED (SingleRowLock),
-	CONSTRAINT CK_Configuration_BlobStorage_SingleRowLock CHECK (SingleRowLock = 1),
-    CONSTRAINT CK_Configuration_BlobStorage_SqlExternalDataSourceName CHECK (trim(SqlExternalDataSourceName) != '')
+	constraint PK_Configuration_BlobStorage_SingleRowLock primary key clustered (SingleRowLock),
+	constraint CK_Configuration_BlobStorage_SingleRowLock check (SingleRowLock = 1),
+    constraint CK_Configuration_BlobStorage_SqlExternalDataSourceName check (trim(SqlExternalDataSourceName) != '')
 );
 
-INSERT INTO Configuration.BlobStorage
+insert into Configuration.BlobStorage
 (
     SingleRowLock,
     BlobPrimaryKey,
@@ -166,7 +166,7 @@ INSERT INTO Configuration.BlobStorage
     QueueName,
     SqlExternalDataSourceName
 )
-VALUES
+values
 (
     1,
     '***SET-BLOB-PRIMARY-KEY***',
@@ -176,29 +176,29 @@ VALUES
     'GPConnectAnalyticsBlobStore'
 );
 
-CREATE TABLE Configuration.Email
+create table Configuration.Email
 (
-    SingleRowLock BIT NOT NULL,
-    SenderAddress VARCHAR(100) NOT NULL,
-    Hostname VARCHAR(100) NOT NULL,
-    Port SMALLINT NOT NULL,
-    Encryption VARCHAR(10) NOT NULL,
-    AuthenticationRequired BIT NOT NULL,
-    Username VARCHAR(100) NOT NULL,
-    Password VARCHAR(100) NOT NULL,
-    DefaultSubject VARCHAR(100) NOT NULL
+    SingleRowLock bit not null,
+    SenderAddress varchar(100) not null,
+    Hostname varchar(100) not null,
+    Port smallint not null,
+    Encryption varchar(10) not null,
+    AuthenticationRequired bit not null,
+    Username varchar(100) not null,
+    Password varchar(100) not null,
+    DefaultSubject varchar(100) not null
 
-    CONSTRAINT PK_Configuration_Email_SingleRowLock PRIMARY KEY (SingleRowLock),
-    CONSTRAINT CK_Configuration_Email_SingleRowLock CHECK (SingleRowLock = 1),
-    CONSTRAINT CK_Configuration_Email_SenderAddress CHECK (LEN(TRIM(SenderAddress)) > 0),
-    CONSTRAINT CK_Configuration_Email_Hostname CHECK (LEN(TRIM(Hostname)) > 0),
-    CONSTRAINT CK_Configuration_Email_Port CHECK (port > 0),
-    CONSTRAINT CK_Configuration_Email_Encryption CHECK (LEN(TRIM(Encryption)) > 0),
-    CONSTRAINT CK_Configuration_Email_DefaultSubject CHECK (LEN(TRIM(DefaultSubject)) > 0)
+    constraint PK_Configuration_Email_SingleRowLock primary key (SingleRowLock),
+    constraint CK_Configuration_Email_SingleRowLock check (SingleRowLock = 1),
+    constraint CK_Configuration_Email_SenderAddress check (len(trim(SenderAddress)) > 0),
+    constraint CK_Configuration_Email_Hostname check (len(trim(Hostname)) > 0),
+    constraint CK_Configuration_Email_Port check (port > 0),
+    constraint CK_Configuration_Email_Encryption check (len(trim(Encryption)) > 0),
+    constraint CK_Configuration_Email_DefaultSubject check (len(trim(DefaultSubject)) > 0)
 );
 
 
-INSERT INTO Configuration.Email
+insert into Configuration.Email
 (
     SingleRowLock,
     SenderAddress,
@@ -210,7 +210,7 @@ INSERT INTO Configuration.Email
     Password, 
     DefaultSubject
 )
-VALUES
+values
 (
     1, 
     'test@test.com', 

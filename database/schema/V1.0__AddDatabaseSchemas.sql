@@ -2,16 +2,22 @@
     Schema V1.0 - add database schemas
 */
 
-CREATE SCHEMA Configuration AUTHORIZATION dbo;
-GO
+create schema Configuration authorization dbo;
 
-CREATE SCHEMA Logging AUTHORIZATION dbo;
-GO
+go
 
-CREATE SCHEMA ApiReader AUTHORIZATION dbo;
-GO
+create schema Logging authorization dbo;
 
-CREATE SCHEMA Import AUTHORIZATION dbo;
-GO
+go
 
-CREATE SCHEMA Data AUTHORIZATION dbo;
+create schema ApiReader authorization dbo;
+
+go
+
+create schema Import authorization dbo;
+
+go
+
+create schema Data authorization dbo;
+
+go

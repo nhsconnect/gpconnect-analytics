@@ -2,56 +2,56 @@
     Schema V1.3 - create Import tables
 */
 
-CREATE TABLE Import.[File]
+create table Import.[File]
 (
-	FileId INTEGER NOT NULL IDENTITY(1, 1),
-	FileTypeId SMALLINT NOT NULL,
-	FilePath VARCHAR(500) NOT NULL,
-	QueryFromDate DATETIME2 NOT NULL,
-	QueryToDate DATETIME2 NOT NULL,
-	SplunkInstance VARCHAR(10) NOT NULL,
-	ExtractDate DATETIME2 NOT NULL,
-	IsInstalling BIT NOT NULL,
-	IsInstalled BIT NOT NULL,
-	InstalledDate DATETIME2 NULL,
-	RowsAdded INT NULL,
-	RowsUpdated INT NULL,
-	InstallDuration INT NULL
+	FileId integer not null identity(1, 1),
+	FileTypeId smallint not null,
+	FilePath varchar(500) not null,
+	QueryFromDate datetime2 not null,
+	QueryToDate datetime2 not null,
+	SplunkInstance varchar(10) not null,
+	ExtractDate datetime2 not null,
+	IsInstalling bit not null,
+	IsInstalled bit not null,
+	InstalledDate datetime2 null,
+	RowsAdded integer null,
+	RowsUpdated integer null,
+	InstallDuration integer null
 
-	CONSTRAINT PK_Import_File_FileId PRIMARY KEY CLUSTERED (FileId),
-	CONSTRAINT FK_Import_File_FileTypeId FOREIGN KEY (FileTypeId) REFERENCES Configuration.FileType (FileTypeId),
-	CONSTRAINT UQ_Import_File_FilePath UNIQUE (FilePath),
-	CONSTRAINT CK_Import_File_QueryFromDate_QueryToDate_ExtractDate CHECK ((QueryFromDate < QueryToDate) and (QueryToDate < ExtractDate)),
-	CONSTRAINT FK_Import_File_SplunkInstance FOREIGN KEY (SplunkInstance) REFERENCES Configuration.SplunkInstance (SplunkInstance),
-	CONSTRAINT CK_Import_File_IsInstalling_IsInstalled CHECK ((CONVERT(INTEGER, IsInstalling) + CONVERT(INTEGER, IsInstalled)) <= 1),
-	CONSTRAINT CK_Import_File_IsInstalled_InstalledDate_RowsAdded_RowsUpdated_InstallDuration CHECK
+	constraint PK_Import_File_FileId primary key clustered (FileId),
+	constraint FK_Import_File_FileTypeId foreign key (FileTypeId) references Configuration.FileType (FileTypeId),
+	constraint UQ_Import_File_FilePath unique (FilePath),
+	constraint CK_Import_File_QueryFromDate_QueryToDate_ExtractDate check ((QueryFromDate < QueryToDate) and (QueryToDate < ExtractDate)),
+	constraint FK_Import_File_SplunkInstance foreign key (SplunkInstance) references Configuration.SplunkInstance (SplunkInstance),
+	constraint CK_Import_File_IsInstalling_IsInstalled check ((convert(integer, IsInstalling) + convert(integer, IsInstalled)) <= 1),
+	constraint CK_Import_File_IsInstalled_InstalledDate_RowsAdded_RowsUpdated_InstallDuration check
 	(
-		(IsInstalled = 0 AND InstalledDate IS NULL AND RowsAdded IS NULL AND InstallDuration IS NULL)
-		OR (IsInstalled = 1 AND InstalledDate IS NOT NULL AND RowsAdded IS NOT NULL AND RowsUpdated IS NOT NULL AND InstallDuration IS NOT NULL)
+		(IsInstalled = 0 and InstalledDate is null and RowsAdded is null and InstallDuration is null)
+		or (IsInstalled = 1 and InstalledDate is not null and RowsAdded is not null and RowsUpdated is not null and InstallDuration is not null)
 	)
 );
 
-CREATE TABLE Import.AsidLookupStaging
+create table Import.AsidLookupStaging
 (
-	ASID VARCHAR(1000) NULL,
-	MName VARCHAR(1000) NULL,
-	NACS VARCHAR(1000) NULL,
-	OrgName VARCHAR(1000) NULL,
-	OrgType VARCHAR(1000) NULL,
-	PName VARCHAR(1000) NULL,
-	PostCode VARCHAR(1000) NULL
+	ASID varchar(1000) null,
+	MName varchar(1000) null,
+	NACS varchar(1000) null,
+	OrgName varchar(1000) null,
+	OrgType varchar(1000) null,
+	PName varchar(1000) null,
+	PostCode varchar(1000) null
 );
 
-CREATE TABLE Import.SspTransactionStaging
+create table Import.SspTransactionStaging
 (
-	_time VARCHAR(1000) NULL,
-	sspFrom VARCHAR(1000) NULL,
-	sspTo VARCHAR(1000) NULL,
-	SspTraceId VARCHAR(1000) NULL,
-	interaction VARCHAR(1000) NULL,
-	responseCode VARCHAR(1000) NULL,
-	duration VARCHAR(1000) NULL,
-	responseSize VARCHAR(1000) NULL,
-	responseErrorMessage VARCHAR(1000) NULL,
-	method VARCHAR(1000) NULL
+	_time varchar(1000) null,
+	sspFrom varchar(1000) null,
+	sspTo varchar(1000) null,
+	SspTraceId varchar(1000) null,
+	interaction varchar(1000) null,
+	responseCode varchar(1000) null,
+	duration varchar(1000) null,
+	responseSize varchar(1000) null,
+	responseErrorMessage varchar(1000) null,
+	method varchar(1000) null
 );
