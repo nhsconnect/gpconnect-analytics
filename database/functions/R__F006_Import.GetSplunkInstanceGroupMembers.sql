@@ -1,4 +1,4 @@
-if exists (select object_id('Import.GetSplunkInstanceGroupMembers'))
+if (object_id('Import.GetSplunkInstanceGroupMembers') is not null)
 	drop function Import.GetSplunkInstanceGroupMembers;
 
 go
