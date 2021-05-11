@@ -5,3 +5,6 @@
 .vs
 *.ps1
 database/flyway-7.0.0/
+serviceDependencies.json
+serviceDependencies.local.json
+*.arm.json
