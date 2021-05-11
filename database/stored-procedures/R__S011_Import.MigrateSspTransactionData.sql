@@ -39,9 +39,9 @@ as
     from
     (
         select distinct
-            interaction
+            isnull(interaction, '') as interaction
         from Import.SspTransactionStaging s
-		left outer join Data.Interaction i on s.interaction = i.InteractionName
+		left outer join Data.Interaction i on isnull(s.interaction, '') = i.InteractionName
         where i.InteractionName is null
     )  iNew;
 
@@ -137,7 +137,7 @@ as
         s.method,
         @FileId
     from Import.SspTransactionStaging s
-    left outer join Data.Interaction i on s.interaction = i.InteractionName
+    left outer join Data.Interaction i on isnull(s.interaction, '') = i.InteractionName
 
     set @RowsAdded = @@rowcount;
     set @RowsUpdated = 0;
