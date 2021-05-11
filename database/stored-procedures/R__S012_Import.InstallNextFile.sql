@@ -60,42 +60,6 @@ as
     where FileTypeId = @FileTypeId;
 
     -----------------------------------------------------
-    -- get last installed file
-    -----------------------------------------------------
-    declare @PreviousFileId integer;
-    declare @PreviousFilePath varchar(500);
-    declare @PreviousQueryToDate datetime2;
-    declare @PreviousSplunkInstance varchar(20);
-
-    select
-        @PreviousFileId = f.FileId,
-        @PreviousFilePath = f.FilePath,
-        @PreviousQueryToDate = f.QueryToDate,
-        @PreviousSplunkInstance = SplunkInstance
-    from Import.[File] f
-    where f.FileTypeId = @FileTypeId
-	and f.IsInstalled = 1;
-
-    if (@PreviousFileId is not null)
-    begin
-        set @Msg = '- Previous file installed was @FileId=' + convert(varchar, @PreviousFileId);
-        exec dbo.PrintMsg @Msg;
-        set @Msg = '    with @FilePath=' + @PreviousFilePath;
-        exec dbo.PrintMsg @Msg;
-        set @Msg = '    and @QueryToDate=' + convert(varchar, @PreviousQueryToDate, 120);
-        exec dbo.PrintMsg @Msg;
-        exec dbo.PrintMsg '';
-    end
-    else
-    begin
-        set @Msg = '- This is the first file of @FileTypeId=' + convert(varchar, @FileTypeId) + ' being installed';
-        exec dbo.PrintMsg @Msg;
-        set @Msg = '    Using the @QueryFromBaseDate=' + convert(varchar, @QueryFromBaseDate, 120) + ' as the starting point';
-        exec dbo.PrintMsg @Msg;
-        exec dbo.PrintMsg '';
-    end;
-
-    -----------------------------------------------------
     -- determine next file to install
     -----------------------------------------------------
     declare @FileId integer;
@@ -124,6 +88,59 @@ as
         exec dbo.PrintMsg '';
     end;
 
+
+    -----------------------------------------------------
+    -- determine previous file to install
+    -----------------------------------------------------
+    declare @OtherSplunkInstance varchar(100) = isnull((select SplunkInstance from Import.GetOtherSplunkInstanceGroupMembers(@SplunkInstance)), '');
+
+    declare @PreviousFileId integer;
+    declare @PreviousFilePath varchar(500);
+    declare @PreviousQueryToDate datetime2;
+    declare @PreviousSplunkInstance varchar(20);
+
+    select top 1
+        @PreviousFileId = f.FileId,
+        @PreviousFilePath = f.FilePath,
+        @PreviousQueryToDate = f.QueryToDate,
+        @PreviousSplunkInstance = SplunkInstance
+    from Import.[File] f
+    where f.FileTypeId = @FileTypeId
+	and f.IsInstalled = 1
+    and f.SplunkInstance != @OtherSplunkInstance  -- ignore livea where next file to install is liveb and vice versa
+    order by f.QueryToDate desc;
+
+
+    exec dbo.PrintMsg '- Determining previous installed file';
+
+    if (@OtherSplunkInstance != '')
+    begin
+        set @Msg = '    Next file is from splunk instance ' + @SplunkInstance + ', excluding files from splunk instance ' + @OtherSplunkInstance;
+        exec dbo.PrintMsg @Msg;
+    end;
+
+    exec dbo.PrintMsg '';
+
+    if (@PreviousFileId is not null)
+    begin
+        set @Msg = '- Previous file installed was @FileId=' + convert(varchar, @PreviousFileId);
+        exec dbo.PrintMsg @Msg;
+        set @Msg = '    with @FilePath=' + @PreviousFilePath;
+        exec dbo.PrintMsg @Msg;
+        set @Msg = '    and @QueryToDate=' + convert(varchar, @PreviousQueryToDate, 120);
+        exec dbo.PrintMsg @Msg;
+        exec dbo.PrintMsg '';
+    end
+    else
+    begin
+        set @Msg = '- No previous installed file found, this is the first file of @FileTypeId=' + convert(varchar, @FileTypeId) + ' being installed';
+        exec dbo.PrintMsg @Msg;
+        set @Msg = '    Using the @QueryFromBaseDate=' + convert(varchar, @QueryFromBaseDate, 120) + ' as the starting point';
+        exec dbo.PrintMsg @Msg;
+        exec dbo.PrintMsg '';
+    end;
+
+
     -----------------------------------------------------
     -- if no files to install return
     -----------------------------------------------------
@@ -138,7 +155,6 @@ as
     -----------------------------------------------------
     -- ensure next file is adjacent to previous file
     -----------------------------------------------------
-
     exec dbo.PrintMsg '- Checking file is adjacent to previous file (or query base date, if the first file)';
     exec dbo.PrintMsg '';
 
@@ -148,7 +164,7 @@ as
 
     if (@QueryFromDate < @PreviousQueryToDate)
     begin
-        exec dbo.ThrowError 'Can''t install next file as its query dates overlap with the last installed file (or the base date)';
+        exec dbo.ThrowError 'Can''t install next file as its query dates overlap with installed files (or the base date)';
         return;
     end;
     
@@ -158,7 +174,6 @@ as
         return;
     end;
 
--- TODO deal with spinea / spineb overlap
 -- TODO deal with spinea / spineb alignment when switching to cloud
 
     -----------------------------------------------------
