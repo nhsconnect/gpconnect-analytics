@@ -1,4 +1,9 @@
-CREATE OR ALTER PROCEDURE Import.ParseFilePath
+if exists (select object_id('Import.ParseFilePath'))
+	drop procedure Import.ParseFilePath;
+
+go
+
+create procedure Import.ParseFilePath
 (
 	@FilePath VARCHAR(500),
 	@FileTypeId SMALLINT,

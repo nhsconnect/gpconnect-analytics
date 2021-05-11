@@ -1,75 +1,73 @@
-CREATE OR ALTER PROCEDURE ApiReader.DetermineNextExtract
+if exists (select object_id('Import.DetermineNextExtract'))
+	drop procedure Import.DetermineNextExtract;
+
+go
+
+create procedure ApiReader.DetermineNextExtract
 (
-	@FileTypeId SMALLINT,
-	@ExtractRequired BIT OUTPUT,
-	@QueryFromDate DATETIME2 OUTPUT,
-	@QueryToDate DATETIME2 OUTPUT
+	@FileTypeId smallint,
+	@ExtractRequired bit output,
+	@QueryFromDate datetime2 output,
+	@QueryToDate datetime2 output
 )
-AS
+as
 	-----------------------------------------------------
 	-- default outputs to no extract required
 	-----------------------------------------------------
-	SET @ExtractRequired = 0;
-	SET @QueryFromDate = NULL;
-	SET @QueryToDate = NULL;
+	set @ExtractRequired = 0;
+	set @QueryFromDate = null;
+	set @QueryToDate = null;
 
 	-----------------------------------------------------
 	-- ensure the file type supports query dates
 	-----------------------------------------------------
-	IF NOT EXISTS
+	if not exists
 	(
-		SELECT *
-		FROM 
-			Configuration.FileType
-		WHERE
-			FileTypeId = @FileTypeId
+		select *
+		from Configuration.FileType
+		where FileTypeId = @FileTypeId
 	)
-	BEGIN
-		EXEC dbo.ThrowError '@FileType not recognised, or does not support query dates';
-		RETURN;
-	END;
+	begin
+		exec dbo.ThrowError '@FileType not recognised, or does not support query dates';
+		return;
+	end;
 
 	-----------------------------------------------------
 	-- Get base query dates configuration
 	-----------------------------------------------------
-	DECLARE @QueryFromBaseDate DATETIME2;
-	DECLARE @QueryPeriodHours INTEGER;
+	declare @QueryFromBaseDate datetime2;
+	declare @QueryPeriodHours integer;
 
-	SELECT 
+	select 
 		@QueryFromBaseDate = QueryFromBaseDate,
 		@QueryPeriodHours = QueryPeriodHours
-	FROM
-		Configuration.FileType
-	WHERE
-		FileTypeId = @FileTypeId;
+	from Configuration.FileType
+	where FileTypeId = @FileTypeId;
 
 	-----------------------------------------------------
 	-- calculate @QueryFrom and @QueryToDate
 	-----------------------------------------------------
-	DECLARE @QueryFromDateCandidate DATETIME2;
-	DECLARE @QueryToDateCandidate DATETIME2;
+	declare @QueryFromDateCandidate datetime2;
+	declare @QueryToDateCandidate datetime2;
 	
-	SELECT TOP 1
+	select top 1
 		@QueryFromDateCandidate = QueryToDate
-	FROM 
-		Import.[File]
-	WHERE
-		FileTypeId = @FileTypeId
-	ORDER BY 
-		QueryToDate DESC;
+	from Import.[File]
+	where FileTypeId = @FileTypeId
+	order by QueryToDate desc;
 	
-	IF (@QueryFromDateCandidate IS NULL)
-		SET @QueryFromDateCandidate = @QueryFromBaseDate;
+	if (@QueryFromDateCandidate is null)
+		set @QueryFromDateCandidate = @QueryFromBaseDate;
 	
-	SET @QueryToDateCandidate = DATEADD(HOUR, @QueryPeriodHours, @QueryFromDateCandidate);
+	set @QueryToDateCandidate = dateadd(hour, @QueryPeriodHours, @QueryFromDateCandidate);
 
 	-----------------------------------------------------
 	-- determine whether the query range is in the past
 	-- and if so, set the download to required
 	-----------------------------------------------------
-	IF (@QueryToDateCandidate < GETDATE())
-	BEGIN
-		SET @ExtractRequired = 1;
-		SET @QueryFromDate = @QueryFromDateCandidate;
-		SET @QueryToDate = @QueryToDateCandidate;
-	END;
+	if (@QueryToDateCandidate < getdate())
+	begin
+		set @ExtractRequired = 1;
+		set @QueryFromDate = @QueryFromDateCandidate;
+		set @QueryToDate = @QueryToDateCandidate;
+	end;
