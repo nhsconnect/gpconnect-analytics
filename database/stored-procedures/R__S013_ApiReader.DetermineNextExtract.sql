@@ -1,5 +1,5 @@
-if (object_id('Import.DetermineNextExtract') is not null)
-	drop procedure Import.DetermineNextExtract;
+if (object_id('ApiReader.DetermineNextExtract') is not null)
+	drop procedure ApiReader.DetermineNextExtract;
 
 go
 

@@ -3,7 +3,7 @@ if (object_id('Configuration.GetBlobStorageConfiguration') is not null)
 
 go
 
-create or alter procedure Configuration.GetBlobStorageConfiguration
+create procedure Configuration.GetBlobStorageConfiguration
 as
 
 	select
