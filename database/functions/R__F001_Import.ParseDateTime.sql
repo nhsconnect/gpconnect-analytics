@@ -10,10 +10,14 @@ create function Import.ParseDateTime
 returns datetime2
 as
 begin
-
+	
 	-----------------------------------------------------
 	-- parse datetime in format YYYYMMDDTHHmmss
 	-----------------------------------------------------
+
+	if (len(@DateTimeString) != 15)
+		return convert(datetime2, 'error', 120);  -- force bad conversion
+
 	declare @ExtractDateStringNewFormat varchar(30)
 		= substring(@DateTimeString, 1, 4) + '-' 
 		+ substring(@DateTimeString, 5, 2) + '-' 
