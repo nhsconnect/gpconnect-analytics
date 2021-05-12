@@ -49,6 +49,22 @@ as
 		return;
 	end
 
+	declare @PathSeparator varchar(1) = (select PathSeparator from Configuration.FilePathConstants);
+	declare @FileName varchar(500) = Import.RemoveDirectoryFromFilePath(@FilePath, @PathSeparator);
+
+	if exists
+	(
+		select * 
+		from Import.[File]
+		where FilePath = @FilePath
+		or @FileName = Import.RemoveDirectoryFromFilePath(FilePath, @PathSeparator)
+	)
+	begin
+		set @msg = 'A file with that file name already exists';
+		exec dbo.ThrowError @msg;
+		return;
+	end
+	
 	-----------------------------------------------------
 	-- parse @FilePath
 	-----------------------------------------------------

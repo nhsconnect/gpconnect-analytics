@@ -60,8 +60,8 @@ AS
 	-----------------------------------------------------
 	-- get file type variables
 	-----------------------------------------------------
-	declare @DirectoryName VARCHAR(200);
-	declare @ExtractNameFilePrefix VARCHAR(50);
+	declare @DirectoryName varchar(200);
+	declare @ExtractNameFilePrefix varchar(50);
 
 	select
 		@DirectoryName = DirectoryName,
@@ -78,7 +78,7 @@ AS
 		return;
 	end;
 
-	set @FilePath = substring(@FilePath, (Import.LastCharIndexOf('\', @FilePath) + 1), len(@FilePath));
+	set @FilePath = Import.RemoveDirectoryFromFilePath(@FilePath, @PathSeparator);
 
 	-----------------------------------------------------
 	-- validate and remove @FileExtension
