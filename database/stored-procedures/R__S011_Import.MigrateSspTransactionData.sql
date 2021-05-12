@@ -39,7 +39,7 @@ as
         ServiceName
     )
     select
-        (select (max(isnull(InteractionId, 0)) + 1) from Data.Interaction),
+        (select (max(isnull(InteractionId, 0))) from Data.Interaction) + row_number() over (order by interaction),
         iNew.interaction,
         'other'
     from
@@ -77,7 +77,7 @@ as
         'UNKNOWN',
         'UNKNOWN',
         'UNKNOWN',
-        '',
+        'UNKNOWN',
         'UNKNOWN',
         'UNKNOWN',
         @FileId

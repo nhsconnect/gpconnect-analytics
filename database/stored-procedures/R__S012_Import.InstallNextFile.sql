@@ -192,7 +192,7 @@ as
             execute sp_executesql @EnsureTableEmptySql;
 
             -----------------------------------------------------
-            -- SET install flag on the file
+            -- set install flag on the file
             -----------------------------------------------------
             update Import.[File]
             set
@@ -247,7 +247,7 @@ as
             exec dbo.PrintMsg '';
 
             -----------------------------------------------------
-            -- SET file as installed
+            -- set file as installed
             -----------------------------------------------------
             declare @InstallDuration integer = datediff(second, @ExecutionStart, getdate());
 
