@@ -4,7 +4,7 @@
 
 create table Data.AsidLookup
 (
-	Asid varchar(20) not null,
+	Asid varchar(50) not null,
 	OrgName varchar(200) not null,
 	OdsCode varchar(20) not null,
 	OrgType varchar(50) not null,
@@ -32,8 +32,8 @@ create table Data.SspTransaction
 (
 	SspTransactionId bigint not null identity(1, 1),
 	Time datetimeoffset not null,
-	FromAsid varchar(20) not null,
-	ToAsid varchar(20) not null,
+	FromAsid varchar(50) not null,
+	ToAsid varchar(50) not null,
 	SspTraceId varchar(50) null,
 	InteractionId smallint not null,
 	ResponseCode varchar(1000) null,
