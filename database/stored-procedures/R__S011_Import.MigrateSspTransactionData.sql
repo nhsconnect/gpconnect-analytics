@@ -102,19 +102,6 @@ as
     set @Msg = '    ' + convert(varchar, @@rowcount) + ' ASIDs found; adding to Data.AsidLookup';
     exec dbo.PrintMsg @Msg;
 
-    -----------------------------------------------------
-    -- fix datetime offset into sql format
-    -- (TODO is there a better way of doing this?)
-    -----------------------------------------------------
-    exec dbo.PrintMsg '    Fixing datetime format for migration';
-
-    update Import.SspTransactionStaging
-    set 
-        _time = replace(_time, '+0000', '+00:00');
-
-    update Import.SspTransactionStaging
-    set 
-        _time = replace(_time, '+0100', '+01:00');
 
     -----------------------------------------------------
     -- install file data to destination table
@@ -136,7 +123,7 @@ as
         FileId
     )
     select
-        convert(datetimeoffset, s._time),
+        convert(datetimeoffset, replace(replace(s._time, '+0000', '+00:00'), '+0100', '+01:00')),
         isnull(s.sspFrom, ''),
         isnull(s.sspTo, ''),
         s.SspTraceId,
