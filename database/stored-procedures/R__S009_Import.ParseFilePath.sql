@@ -78,7 +78,7 @@ AS
 		return;
 	end;
 
-	set @FilePath = substring(@FilePath, len(@DirectoryName + @PathSeparator) + 1, len(@FilePath));
+	set @FilePath = substring(@FilePath, (Import.LastCharIndexOf('\', @FilePath) + 1), len(@FilePath));
 
 	-----------------------------------------------------
 	-- validate and remove @FileExtension
