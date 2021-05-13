@@ -7,7 +7,7 @@ select
         when type in ('IF', 'FN') then 'drop function ' + s.name + '.' + o.name + ';'
         when type = 'P' then 'drop procedure ' + s.name + '.' + o.name + ';'
         when type = 'V' then 'drop view ' + s.name + '.' + o.name + ';'
-        when type = 'U' then 'drop table ' + s.name + '.' + o.name + ';'
+        when type = 'U' then 'drop table ' + s.name + '.[' + o.name + '];'
         else '(unknown object type ' + s.name + '.' + o.name + ')'
     end as sql
 from sys.objects o

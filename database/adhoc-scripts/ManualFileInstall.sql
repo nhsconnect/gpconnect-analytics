@@ -16,12 +16,20 @@ exec Import.InstallNextFile 1;
 
 
 -- install SSP transactions file
-declare @MoreFilesToInstall bit = 0;
+declare @MoreFilesToInstall bit = 1;
+declare @InstallCount integer = 1;
 
 while (@MoreFilesToInstall = 1)
 begin
     begin try
+        print '';
+        print '';
+        print '============  INSTALL ' + convert(varchar, @InstallCount) + ' ============';
+        print '';
+
         exec Import.InstallNextFile 2, @MoreFilesToInstall output;
+
+        set @InstallCount = @InstallCount + 1;
     end try
     begin catch
         throw;
