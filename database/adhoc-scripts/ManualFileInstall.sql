@@ -23,7 +23,6 @@ while (@MoreFilesToInstall = 1)
 begin
     begin try
         print '';
-        print '';
         print '============  INSTALL ' + convert(varchar, @InstallCount) + ' ============';
         print '';
 

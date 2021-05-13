@@ -30,6 +30,10 @@ values
 (
     'spineb',
     'spine'
+),
+(
+    'other',
+    'other'
 );
 
 create table Configuration.FilePathConstants
