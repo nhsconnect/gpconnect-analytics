@@ -40,6 +40,7 @@ namespace gpconnect_analytics.DAL
                 _splunkInstances = await _configurationService.GetSplunkInstances();
 
                 var splunkInstance = _splunkInstances.FirstOrDefault(x => x.Source == Helpers.SplunkInstances.cloud.ToString());
+
                 var extractDetails = await GetNextExtractDetails(fileType.FileTypeId);
                 var extractResponseMessage = new ExtractResponse();
                 if (extractDetails != null)
@@ -49,11 +50,14 @@ namespace gpconnect_analytics.DAL
                     var request = new HttpRequestMessage(HttpMethod.Get, requestUri.Uri);
                     var response = await client.SendAsync(request);
 
-                    extractResponseMessage.ExtractResponseStream = await response.Content.ReadAsStreamAsync();
+                    var filePath = ConstructFilePath(splunkInstance, fileType, extractDetails);
+                    var responseStream = await response.Content.ReadAsStreamAsync();
+
+                    extractResponseMessage.FilePath = filePath; 
+                    extractResponseMessage.ExtractResponseStream = responseStream;
                     extractResponseMessage.ExtractResponseMessage = response;
                     extractResponseMessage.ExtractStatusCode = response.StatusCode;
-                    extractResponseMessage.ExtractRequestDetails = extractDetails;
-                    extractResponseMessage.FilePath = ConstructFilePath(splunkInstance, fileType, extractDetails);
+                    extractResponseMessage.ExtractRequestDetails = extractDetails;                    
                 }
                 else
                 {

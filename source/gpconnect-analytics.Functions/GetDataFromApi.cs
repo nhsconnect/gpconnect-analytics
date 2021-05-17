@@ -54,8 +54,12 @@ namespace gpconnect_analytics.Functions
                     var result = await _splunkService.DownloadCSV(fileType);
                     if (result.ExtractStatusCode == System.Net.HttpStatusCode.OK)
                     {
-                        var fileAddedCount = await _importService.AddFile(result.FilePath);
-                        await _blobService.AddMessageToBlobQueue(fileAddedCount, fileType.FileTypeId);
+                        var uploadedBlob = await _blobService.AddObjectToBlob(result);
+                        if (uploadedBlob != null)
+                        {
+                            var fileAddedCount = await _importService.AddFile(result.FilePath);
+                            await _blobService.AddMessageToBlobQueue(fileAddedCount, fileType.FileTypeId);
+                        }
                     }
                 }
             }
