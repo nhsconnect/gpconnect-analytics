@@ -71,6 +71,7 @@ as
         Postcode,
         SupplierName,
         ProductName,
+        IsDeleted,
         FileId
     )
     select distinct
@@ -81,6 +82,7 @@ as
         'UNKNOWN',
         'UNKNOWN',
         'UNKNOWN',
+        0,
         @FileId
     from 
     (
@@ -109,7 +111,7 @@ as
     -----------------------------------------------------
     exec dbo.PrintMsg '    Inserting data into destination table';
 
-    insert into Data.SspTransaction
+    insert into Data.SspTransaction with (tablock)
     (
         [Time],
         FromAsid,
