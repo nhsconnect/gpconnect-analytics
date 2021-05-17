@@ -97,7 +97,7 @@ values
     'asid-lookup-data',
     'asidlookup',
     '| inputlookup asidLookup.csv',
-    convert(datetime2, '2021-01-01 00:00:00'),
+    convert(datetime2, '2020-01-01 00:00:00'),
     24 * 7,
     'Import.AsidLookupStaging'
 ),
