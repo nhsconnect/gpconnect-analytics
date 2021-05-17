@@ -92,19 +92,21 @@ as
 	-----------------------------------------------------
 	-- validate dates in @FilePath
 	-----------------------------------------------------
-	if (@ExtractDate > getdate())
+	declare @CurrentDate datetime = sysdatetimeoffset() at time zone 'GMT Standard Time'
+
+	if (@ExtractDate > @CurrentDate)
 	begin
 		exec dbo.ThrowError 'EXTRACTDATE in @FilePath is in the future';
 		return;
 	end;
 
-	if (@QueryFromDate > getdate())
+	if (@QueryFromDate > @CurrentDate)
 	begin
 		exec dbo.ThrowError 'QUERYFROMDATE in @FilePath is in the future';
 		return;
 	end;
 
-	if (@QueryToDate > getdate())
+	if (@QueryToDate > @CurrentDate)
 	begin
 		exec dbo.ThrowError 'QUERYTODATE in @FilePath is in the future';
 		return;
