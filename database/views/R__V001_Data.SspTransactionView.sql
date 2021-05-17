@@ -27,5 +27,5 @@ as
     from Data.SspTransaction s
     inner join Data.Interaction i on s.InteractionId = i.InteractionId
     inner join Data.AsidLookup aFrom on s.FromAsid = aFrom.Asid
-    inner join Data.AsidLookup aTo on s.ToAsid = aTo.Asid
+    inner join Data.AsidLookup aTo on s.ToAsid = aTo.Asid;
 

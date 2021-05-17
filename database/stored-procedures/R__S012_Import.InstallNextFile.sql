@@ -273,7 +273,7 @@ as
             exec dbo.PrintMsg '';
 
             -----------------------------------------------------
-            -- SET whether more files are waiting install
+            -- set whether more files are waiting install
             -----------------------------------------------------
             set @MoreFilesToInstall = 0;
             
