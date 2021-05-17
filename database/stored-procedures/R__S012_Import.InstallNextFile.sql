@@ -219,20 +219,23 @@ as
 
             declare @RowsAdded integer;
             declare @RowsUpdated integer;
+            declare @RowsDeleted integer;
             
             if (@FileTypeId = 1)
             begin
                 exec Import.MigrateAsidLookupData
                     @FileId = @FileId,
                     @RowsAdded = @RowsAdded output,
-                    @RowsUpdated = @RowsUpdated output;
+                    @RowsUpdated = @RowsUpdated output,
+                    @RowsDeleted = @RowsDeleted output;
             end
             else if (@FileTypeId = 2)
             begin
                 exec Import.MigrateSspTransactionData
                     @FileId = @FileId,
                     @RowsAdded = @RowsAdded output,
-                    @RowsUpdated = @RowsUpdated output;
+                    @RowsUpdated = @RowsUpdated output,
+                    @RowsDeleted = @RowsDeleted output;
             end
             else
             begin
@@ -244,6 +247,9 @@ as
             exec dbo.PrintMsg @Msg;
             set @Msg = '    ' + convert(varchar, @RowsUpdated) + ' rows updated';
             exec dbo.PrintMsg @Msg;
+            set @Msg = '    ' + convert(varchar, @RowsDeleted) + ' rows deleted';
+            exec dbo.PrintMsg @Msg;
+
             exec dbo.PrintMsg '';
 
             -----------------------------------------------------
@@ -258,6 +264,7 @@ as
                 InstalledDate = getdate(),
                 RowsAdded = @RowsAdded,
                 RowsUpdated = @RowsUpdated,
+                RowsDeleted = @RowsDeleted,
                 InstallDuration = @InstallDuration
             where FileId = @FileId;
 

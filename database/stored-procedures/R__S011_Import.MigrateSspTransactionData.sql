@@ -6,7 +6,8 @@ go
 create procedure Import.MigrateSspTransactionData
     @FileId smallint,
     @RowsAdded integer output,
-    @RowsUpdated integer output
+    @RowsUpdated integer output,
+    @RowsDeleted integer output
 as
 
     declare @Msg varchar(8000);
@@ -139,6 +140,7 @@ as
 
     set @RowsAdded = @@rowcount;
     set @RowsUpdated = 0;
+    set @RowsDeleted = 0;
 
     set @Msg = '    ' + convert(varchar, @RowsAdded) + ' rows added to Data.SspTransaction';
     exec dbo.PrintMsg @Msg;

@@ -7,7 +7,8 @@ create procedure Import.MigrateAsidLookupData
 (
     @FileId smallint,
     @RowsAdded integer output,
-    @RowsUpdated integer output
+    @RowsUpdated integer output,
+    @RowsDeleted integer output
 )
 as
 
@@ -90,8 +91,11 @@ as
     update a
     set
         a.IsDeleted = 1,
-        a.FileId = FileId
+        a.FileId = @FileId
     from Data.AsidLookup a
     left outer join Import.AsidLookupStaging s on a.Asid = s.ASID
     where s.ASID is null
     and a.IsDeleted = 0;
+
+    set @RowsDeleted = @@rowcount;
+    

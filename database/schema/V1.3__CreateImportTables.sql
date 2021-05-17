@@ -16,6 +16,7 @@ create table Import.[File]
 	InstalledDate datetime2 null,
 	RowsAdded integer null,
 	RowsUpdated integer null,
+	RowsDeleted integer null,
 	InstallDuration integer null,
 	RowsInstalledPerSecond as (RowsAdded + RowsUpdated) / isnull(nullif(InstallDuration, 0), 1)
 
@@ -25,10 +26,10 @@ create table Import.[File]
 	constraint CK_Import_File_QueryFromDate_QueryToDate_ExtractDate check ((QueryFromDate < QueryToDate) and (QueryToDate < ExtractDate)),
 	constraint FK_Import_File_SplunkInstance foreign key (SplunkInstance) references Configuration.SplunkInstance (SplunkInstance),
 	constraint CK_Import_File_IsInstalling_IsInstalled check ((convert(integer, IsInstalling) + convert(integer, IsInstalled)) <= 1),
-	constraint CK_Import_File_IsInstalled_InstalledDate_RowsAdded_RowsUpdated_InstallDuration check
+	constraint CK_Import_File_IsInstalled_InstalledDate_RowsAdded_RowsUpdated_RowsDeleted_InstallDuration check
 	(
-		(IsInstalled = 0 and InstalledDate is null and RowsAdded is null and InstallDuration is null)
-		or (IsInstalled = 1 and InstalledDate is not null and RowsAdded is not null and RowsUpdated is not null and InstallDuration is not null)
+		(IsInstalled = 0 and InstalledDate is null and RowsAdded is null and RowsUpdated is null and RowsDeleted is null and InstallDuration is null)
+		or (IsInstalled = 1 and InstalledDate is not null and RowsAdded is not null and RowsUpdated is not null and RowsDeleted is not null and InstallDuration is not null)
 	)
 );
 
