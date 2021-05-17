@@ -11,6 +11,7 @@ create table Data.AsidLookup
 	Postcode varchar(10) not null,
 	SupplierName varchar(200) not null,
 	ProductName varchar(200) not null,
+	IsDeleted bit not null,
 	FileId integer not null
 
 	constraint PK_Data_AsidLookup_ASID primary key clustered (Asid),

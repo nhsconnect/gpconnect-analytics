@@ -9,7 +9,8 @@ create procedure Import.MigrateAsidLookupData
     @RowsAdded integer output,
     @RowsUpdated integer output
 )
-AS
+as
+
     -----------------------------------------------------
     -- check proc is called as part of install
     -----------------------------------------------------
@@ -28,6 +29,8 @@ AS
     -----------------------------------------------------
     -- migrate data to destination
     -----------------------------------------------------
+
+    -- insert new rows
     insert into Data.AsidLookup
     (
         Asid,
@@ -37,6 +40,7 @@ AS
         Postcode,
         SupplierName,
         ProductName,
+        IsDeleted,
         FileId
     )
     select
@@ -47,6 +51,7 @@ AS
         s.PostCode,
         isnull(s.MName, ''),
         isnull(s.PName, ''),
+        0,
         @FileId
     from Import.AsidLookupStaging s
 	left outer join Data.AsidLookup a on s.ASID = a.Asid
@@ -54,6 +59,8 @@ AS
 
     set @RowsAdded = @@rowcount;
 
+    -- update existing rows where data has changed
+    -- or a previously deleted row has been re-introduced
     update a
     set
         a.OrgName = s.OrgName,
@@ -62,6 +69,7 @@ AS
         a.Postcode = s.PostCode,
         a.SupplierName = isnull(s.MName, ''),
         a.ProductName = isnull(s.PName, ''),
+        a.IsDeleted = 0,
         a.FileId = @FileId
     from Data.AsidLookup a
     inner join Import.AsidLookupStaging s on a.Asid = s.ASID
@@ -71,8 +79,19 @@ AS
         or a.OdsCode != s.NACS
         or a.OrgType != s.OrgType
         or a.Postcode != s.PostCode
-        or a.SupplierName != s.MName
-        or a.ProductName != s.PName
+        or a.SupplierName != isnull(s.MName, '')
+        or a.ProductName != isnull(s.PName, '')
+        or a.IsDeleted = 1
     );
 
     set @RowsUpdated = @@rowcount;
+
+    -- soft delete rows that have been removed
+    update a
+    set
+        a.IsDeleted = 1,
+        a.FileId = FileId
+    from Data.AsidLookup a
+    left outer join Import.AsidLookupStaging s on a.Asid = s.ASID
+    where s.ASID is null
+    and a.IsDeleted = 0;
