@@ -32,6 +32,7 @@ namespace gpconnect_analytics.DAL
 
         public async Task<BlobContentInfo> AddObjectToBlob(ExtractResponse extractResponse)
         {
+            _logger.LogInformation($"Adding object to blob storage", extractResponse);
             _blobStorageConfiguration = await _configurationService.GetBlobStorageConfiguration();
             var containerClient = _blobServiceClient.GetBlobContainerClient(_blobStorageConfiguration.ContainerName);
             try
@@ -59,6 +60,7 @@ namespace gpconnect_analytics.DAL
 
         private string AddFolders(string filePath)
         {
+            _logger.LogInformation($"Adding folder to blob storage", filePath);
             return filePath;
         }
 
@@ -76,6 +78,7 @@ namespace gpconnect_analytics.DAL
                     };
 
                     var messageText = JsonConvert.SerializeObject(message);
+                    _logger.LogInformation($"Adding message to blob queue", message);
                     await _queueClient.SendMessageAsync(messageText.StringToBase64());
                 }
             }

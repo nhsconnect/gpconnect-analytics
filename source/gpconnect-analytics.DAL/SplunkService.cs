@@ -35,6 +35,7 @@ namespace gpconnect_analytics.DAL
         {
             try
             {
+                _logger.LogInformation("Downloading CSV from Splunk Cloud API", fileType);
                 _filePathConstants = await _configurationService.GetFilePathConstants();
                 _splunkClient = await _configurationService.GetSplunkClientConfiguration();
                 _splunkInstances = await _configurationService.GetSplunkInstances();
@@ -48,10 +49,12 @@ namespace gpconnect_analytics.DAL
                     var client = _httpClientFactory.CreateClient("SplunkApiClient");
                     var requestUri = ConstructRequestUri(extractDetails);
                     var request = new HttpRequestMessage(HttpMethod.Get, requestUri.Uri);
+                    _logger.LogInformation("Sending download request to Splunk Cloud API", request);
                     var response = await client.SendAsync(request);
 
-                    var filePath = ConstructFilePath(splunkInstance, fileType, extractDetails);
+                    var filePath = ConstructFilePath(splunkInstance, fileType, extractDetails);                    
                     var responseStream = await response.Content.ReadAsStreamAsync();
+                    _logger.LogInformation("Reading content response from Splunk Cloud API", responseStream);
 
                     extractResponseMessage.FilePath = filePath; 
                     extractResponseMessage.ExtractResponseStream = responseStream;
@@ -63,6 +66,7 @@ namespace gpconnect_analytics.DAL
                 {
                     extractResponseMessage.ExtractStatusCode = System.Net.HttpStatusCode.BadRequest;
                 }
+                _logger.LogInformation("Splunk Cloud API returned response", extractResponseMessage);
                 return extractResponseMessage;
             }
             catch (TimeoutException timeoutException)
@@ -107,12 +111,14 @@ namespace gpconnect_analytics.DAL
             parameters.Add("@QueryFromDate", dbType: System.Data.DbType.DateTime2, direction: System.Data.ParameterDirection.Output);
             parameters.Add("@QueryToDate", dbType: System.Data.DbType.DateTime2, direction: System.Data.ParameterDirection.Output);
 
+            _logger.LogInformation("Determining next extract details", parameters);
             var result = await _dataService.ExecuteStoredProcedure<Extract>(procedureName, parameters);
             return result.FirstOrDefault();
         }
 
         protected UriBuilder ConstructRequestUri(Extract extractDetails)
         {
+            _logger.LogInformation("Constructing Splunk Cloud API request details", extractDetails);
             var uriBuilder = new UriBuilder
             {
                 Host = _splunkClient.HostName,
@@ -122,6 +128,7 @@ namespace gpconnect_analytics.DAL
             query.Add(Uri.EscapeDataString("QueryDateFrom"), extractDetails.QueryFromDate.ToString("dd-MM-yyyy"));
             query.Add(Uri.EscapeDataString("QueryDateTo"), extractDetails.QueryToDate.ToString("dd-MM-yyyy"));
             uriBuilder.Query = query.ToString();
+            _logger.LogInformation("Returning the following Splunk Cloud API request details", uriBuilder);
             return uriBuilder;
         }
     }
