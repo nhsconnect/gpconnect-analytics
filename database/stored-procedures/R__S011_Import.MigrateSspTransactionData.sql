@@ -138,7 +138,7 @@ as
         s.method,
         @FileId
     from Import.SspTransactionStaging s
-    left outer join Data.Interaction i on isnull(s.interaction, '') = i.InteractionName
+    left outer join Data.Interaction i on isnull(s.interaction, '') = i.InteractionName;
 
     set @RowsAdded = @@rowcount;
     set @RowsUpdated = 0;
