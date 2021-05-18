@@ -1,1 +1,5 @@
-find * -type f -name "*.csv" | sort
+# get sorted list of csv files in folder and subfolders
+find * -type f -name "*.csv" | sort 
+
+# get ApiReader.AddFile statements
+find * -type f -name "*.csv" | sort | tr / \\ | sed 's/.*/exec ApiReader.AddFile 2, "&";/'
