@@ -1,5 +1,5 @@
 if (object_id('Data.SspTransactionView') is not null)
-    drop view Import.WriteLog;
+    drop view Data.SspTransactionView;
 
 go
 
