@@ -6,6 +6,7 @@ AS
 		HostPort,
 		BaseUrl,
 		QueryParameters,
-		QueryTimeout
+		QueryTimeout,
+		ApiToken
 	FROM 
 		Configuration.SplunkClient;
