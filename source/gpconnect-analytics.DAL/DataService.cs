@@ -27,6 +27,7 @@ namespace gpconnect_analytics.DAL
             {
                 try
                 {
+                    sqlConnection.InfoMessage += SqlConnection_InfoMessage;
                     _logger.LogInformation($"Executing stored procedure {procedureName}", parameters);
                     var results = await sqlConnection.QueryAsync<T>(procedureName, parameters, commandType: System.Data.CommandType.StoredProcedure);
                     return results.AsList();
@@ -46,6 +47,7 @@ namespace gpconnect_analytics.DAL
             {
                 try
                 {
+                    sqlConnection.InfoMessage += SqlConnection_InfoMessage;
                     _logger.LogInformation($"Executing stored procedure {procedureName}", parameters);
                     var result = await sqlConnection.ExecuteAsync(procedureName, parameters, commandType: System.Data.CommandType.StoredProcedure);
                     return result;
@@ -56,6 +58,11 @@ namespace gpconnect_analytics.DAL
                     throw;
                 }
             }
+        }
+
+        private void SqlConnection_InfoMessage(object sender, SqlInfoMessageEventArgs e)
+        {
+            _logger?.LogInformation(e.Message);
         }
     }
 }
