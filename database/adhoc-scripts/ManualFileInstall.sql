@@ -11,11 +11,8 @@ exec ApiReader.AddFile 2, 'ssp-transactions\spinea\gpcanalytics-ssptrans-2020010
 exec ApiReader.AddFile 2, 'ssp-transactions\spinea\gpcanalytics-ssptrans-20200201T000000-20200301T000000-spinea-20210429T123000.csv'
 
 
+
 -- install ASID lookup file
-exec Import.InstallNextFile 1;
-
-
--- install SSP transactions file
 declare @MoreFilesToInstall bit = 1;
 declare @InstallCount integer = 1;
 
@@ -23,12 +20,34 @@ while (@MoreFilesToInstall = 1)
 begin
     begin try
         print '';
-        print '============  INSTALL ' + convert(varchar, @InstallCount) + ' ============';
+        print '============  ASID LOOKUP INSTALL ' + convert(varchar, @InstallCount) + ' ============';
         print '';
 
-        exec Import.InstallNextFile 2, @MoreFilesToInstall output;
+        exec Import.InstallNextFile 1, @MoreFilesToInstall output;
 
         set @InstallCount = @InstallCount + 1;
+    end try
+    begin catch
+        throw;
+    end catch;
+end;
+
+
+
+-- install SSP transactions file
+declare @MoreFilesToInstall2 bit = 1;
+declare @InstallCount2 integer = 1;
+
+while (@MoreFilesToInstall2 = 1)
+begin
+    begin try
+        print '';
+        print '============  SSP TRANSACTIONS INSTALL ' + convert(varchar, @InstallCount2) + ' ============';
+        print '';
+
+        exec Import.InstallNextFile 2, @MoreFilesToInstall2 output;
+
+        set @InstallCount2 = @InstallCount2 + 1;
     end try
     begin catch
         throw;

@@ -1,5 +1,8 @@
 # get sorted list of csv files in folder and subfolders
 find * -type f -name "*.csv" | sort 
 
-# get ApiReader.AddFile statements
-find * -type f -name "*.csv" | sort | tr / \\ | sed 's/.*/exec ApiReader.AddFile 2, "&";/'
+# get ApiReader.AddFile statements - ASID lookup
+find asid-lookup-file/* -type f -name "*.csv" | sort | tr / \\ | sed 's/.*/exec ApiReader.AddFile 1, "&";/'
+
+# get ApiReader.AddFile statements - SSP transactions
+find ssp-transactions/* -type f -name "*.csv" | sort | tr / \\ | sed 's/.*/exec ApiReader.AddFile 2, "&";/'
