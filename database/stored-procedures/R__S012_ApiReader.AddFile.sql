@@ -1,10 +1,4 @@
-/****** Object:  StoredProcedure [ApiReader].[AddFile]    Script Date: 25/05/2021 10:41:06 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-ALTER procedure [ApiReader].[AddFile]
+CREATE OR ALTER procedure [ApiReader].[AddFile]
 (
 	@FileTypeId smallint,
 	@FilePath varchar(500)
@@ -160,3 +154,4 @@ as
 		null,
 		null
 	);
+GO
