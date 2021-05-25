@@ -31,12 +31,12 @@ namespace gpconnect_analytics.Functions
             }
         }
 
-        [FunctionName("GetDataFromAsidLookup")]
-        public async Task GetDataFromAsidLookup([TimerTrigger("0 0 1 * * MON", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
-        {
-            var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.asidlookup.ToString());
-            await ExecuteDownloadFromSplunk(fileType);
-        }
+        //[FunctionName("GetDataFromAsidLookup")]
+        //public async Task GetDataFromAsidLookup([TimerTrigger("0 0 1 * * MON", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
+        //{
+        //    var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.asidlookup.ToString());
+        //    await ExecuteDownloadFromSplunk(fileType);
+        //}
 
         [FunctionName("GetDataFromSspTrans")]
         public async Task GetDataFromSspTrans([TimerTrigger("0 0 1 * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
