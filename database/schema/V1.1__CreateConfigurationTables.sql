@@ -105,7 +105,7 @@ values
     2,
     'ssp-transactions',
     'ssptrans',
-    'index=spinevfmlog (logReference=SSP0001 OR logReference=SSP0004 OR logReference=SSP0012) | transaction internalID startswith=SSP0001 endswith=SSP0004 keepevicted=true maxspan=1h | table _time, sspFrom, sspTo, SspTraceId, interaction, responseCode, duration, responseSize, responseErrorMessage, method | sort 0 _time',
+    'search index=spine2vfmmonitor (logReference=SSP0001 OR logReference=SSP0015 OR logReference=SSP0016) earliest="{earliest}" latest="{latest}" | transaction internalID maxspan=1h keepevicted=true | table _time, SspTraceId, sspFrom, sspTo, interaction, responseCode, duration, responseSize, responseErrorMessage, method | eval _time=strftime(_time, "%Y-%m-%dT%H:%M:%S.%Q%z")',
     convert(datetime2, '2020-01-01 00:00:00'),
     24,
     'Import.SspTransactionStaging'
@@ -119,7 +119,8 @@ create table Configuration.SplunkClient
     BaseUrl varchar(1000) not null,
     QueryParameters varchar(1000) not null,
     QueryTimeout smallint not null,
-    SplunkInstance varchar(10) not null
+    SplunkInstance varchar(10) not null,
+    ApiToken varchar(1000) not null
 
     constraint PK_Configuration_SplunkClient_SingleRowLock primary key (SingleRowLock),
     constraint CK_Configuration_SplunkClient_SingleRowLock check (SingleRowLock = 1),
@@ -134,7 +135,8 @@ insert into Configuration.SplunkClient
     BaseUrl,
     QueryParameters,
     QueryTimeout,
-    SplunkInstance
+    SplunkInstance,
+    ApiToken
 )
 values
 (
@@ -144,7 +146,8 @@ values
     '***SET-BASE-URL***',
     '?QueryDateFrom={0}&QueryDateTo={1}',
     30,
-    'cloud'
+    'cloud',
+    '***SET-APITOKEN-VALUE***'
 );
 
 create table Configuration.BlobStorage
