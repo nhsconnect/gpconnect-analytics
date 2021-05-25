@@ -7,6 +7,7 @@
         public string QueryParameters { get; set; }
         public string HostName { get; set; }
         public int HostPort { get; set; }
+        public int QueryTimeout { get; set; }
         public string ApiToken { get; set; }
     }
 }

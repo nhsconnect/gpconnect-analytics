@@ -130,6 +130,8 @@ namespace gpconnect_analytics.DAL
                     {
                         var client = _httpClientFactory.CreateClient("SplunkApiClient");
                         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _splunkClient.ApiToken);
+                        client.Timeout = new TimeSpan(0,0, _splunkClient.QueryTimeout);
+                        
                         var uriBuilder = new UriBuilder
                         {
                             Scheme = "https",
