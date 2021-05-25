@@ -6,6 +6,6 @@ namespace gpconnect_analytics.DAL.Interfaces
     public interface IImportService
     {
         Task InstallData(Message message);
-        Task<int> AddFile(string filePath);
+        Task<int> AddFile(int fileTypeId, string filePath);
     }
 }

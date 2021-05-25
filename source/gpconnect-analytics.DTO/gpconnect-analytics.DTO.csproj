@@ -5,4 +5,8 @@
     <RootNamespace>gpconnect_analytics.DTO</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Splunk.Client.DotnetCore" Version="1.0.7" />
+  </ItemGroup>
+
 </Project>

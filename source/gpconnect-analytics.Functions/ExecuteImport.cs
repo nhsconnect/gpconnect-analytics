@@ -20,6 +20,7 @@ namespace gpconnect_analytics.Functions
         [FunctionName("ExecuteImport")]
         public async Task Run([QueueTrigger("%QueueName%")] Message queueItem, ILogger log)
         {
+            _logger.LogInformation("Executing queue trigger", queueItem);
             await _importService.InstallData(queueItem);
         }
     }
