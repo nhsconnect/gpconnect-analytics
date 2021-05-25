@@ -1,4 +1,5 @@
 ﻿using gpconnect_analytics.DAL;
+using gpconnect_analytics.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Layouts;
@@ -16,6 +17,8 @@ namespace gpconnect_analytics.Configuration.Infrastructure.Logging
 
             var consoleTarget = AddConsoleTarget();
             var databaseTarget = AddDatabaseTarget(configuration);
+
+            nLogConfiguration.Variables.Add("applicationVersion", ApplicationHelper.ApplicationVersion.GetAssemblyVersion());
 
             nLogConfiguration.AddRule(NLog.LogLevel.Trace, NLog.LogLevel.Fatal, consoleTarget);
             nLogConfiguration.AddRule(NLog.LogLevel.Trace, NLog.LogLevel.Fatal, databaseTarget);
@@ -54,7 +57,7 @@ namespace gpconnect_analytics.Configuration.Infrastructure.Logging
             databaseTarget.Parameters.Add(new DatabaseParameterInfo
             {
                 Name = "@Application",
-                Layout = "${application}",
+                Layout = "${var:applicationVersion}",
                 DbType = DbType.String.ToString()
             });
 
