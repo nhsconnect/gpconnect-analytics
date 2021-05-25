@@ -138,7 +138,8 @@ as
         s.method,
         @FileId
     from Import.SspTransactionStaging s
-    left outer join Data.Interaction i on isnull(s.interaction, '') = i.InteractionName;
+    left outer join Data.Interaction i on isnull(s.interaction, '') = i.InteractionName
+    order by convert(datetimeoffset, replace(replace(s._time, '+0000', '+00:00'), '+0100', '+01:00')) asc;
 
     set @RowsAdded = @@rowcount;
     set @RowsUpdated = 0;

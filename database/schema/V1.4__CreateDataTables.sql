@@ -44,9 +44,27 @@ create table Data.SspTransaction
 	Method varchar(100) null,
 	FileId integer not null
 
-	constraint PK_Data_SspTransaction_SspTransactionId primary key clustered (SspTransactionId),
+	constraint PK_Data_SspTransaction_Time_SspTransactionId primary key clustered (Time, SspTransactionId),
+	constraint UQ_Data_SspTransaction_SspTransactionId unique (SspTransactionId),
 	constraint FK_Data_SspTransaction_FromAsid foreign key (FromAsid) references Data.AsidLookup (Asid),
 	constraint FK_Data_SspTransaction_ToAsid foreign key (ToAsid) references Data.AsidLookup (Asid),
 	constraint FK_Data_SspTransaction_InteractionId foreign key (InteractionId) references Data.Interaction (InteractionId),
 	constraint FK_Data_SspTransaction_FileId foreign key (FileId) references Import.[File] (FileId)
+);
+
+create nonclustered columnstore index CX_Data_SspTransaction_AllColumns
+on Data.SspTransaction 
+(
+    SspTransactionId,
+    [Time], 
+    FromAsid,
+    ToAsid,
+    SspTraceId,
+    InteractionId,
+    ResponseCode,
+    Duration,
+    ResponseSize,
+    ResponseErrorMessage,
+    Method,
+    FileId
 );
