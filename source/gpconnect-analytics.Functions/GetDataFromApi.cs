@@ -34,7 +34,6 @@ namespace gpconnect_analytics.Functions
         [FunctionName("GetDataFromAsidLookup")]
         public async Task GetDataFromAsidLookup([TimerTrigger("0 0 1 * * MON", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
         {
-            _logger.LogInformation("Executing timner trigger for AsidLookup extraction function");
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.asidlookup.ToString());
             await ExecuteDownloadFromSplunk(fileType);
         }
@@ -42,7 +41,6 @@ namespace gpconnect_analytics.Functions
         [FunctionName("GetDataFromSspTrans")]
         public async Task GetDataFromSspTrans([TimerTrigger("0 0 1 * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
         {
-            _logger.LogInformation("Executing timer trigger for SspTransactions extraction function");
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.ssptrans.ToString());
             await ExecuteDownloadFromSplunk(fileType);
         }
@@ -54,14 +52,18 @@ namespace gpconnect_analytics.Functions
                 if (fileType != null)
                 {
                     var result = await _splunkService.DownloadCSV(fileType);
-                    if (result.ExtractStatusCode == System.Net.HttpStatusCode.OK)
+                    if (result?.ExtractResponseMessage.StatusCode == System.Net.HttpStatusCode.OK)
                     {
                         var uploadedBlob = await _blobService.AddObjectToBlob(result);
                         if (uploadedBlob != null)
-                        {
-                            var fileAddedCount = await _importService.AddFile(result.FilePath);
-                            await _blobService.AddMessageToBlobQueue(fileAddedCount, fileType.FileTypeId);
+                        {         
+                            var fileAddedCount = await _importService.AddFile(fileType.FileTypeId, result.FilePath);
+                            await _blobService.AddMessageToBlobQueue(fileAddedCount, fileType.FileTypeId, result.FilePath);
                         }
+                    }
+                    else
+                    {
+                        _logger?.LogWarning(result?.ExtractResponseMessage.ReasonPhrase, result?.ExtractResponseMessage.StatusCode);
                     }
                 }
             }
