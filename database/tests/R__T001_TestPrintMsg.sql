@@ -1,1 +1,1 @@
-EXEC dbo.PrintMsg 'Test message';
+exec dbo.PrintMsg 'Test message';

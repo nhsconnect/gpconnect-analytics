@@ -1,27 +1,31 @@
-CREATE OR ALTER FUNCTION Import.StringSplitGetPiece
+if (object_id('Import.StringSplitGetPiece') is not null)
+	drop function Import.StringSplitGetPiece;
+
+go
+
+create function Import.StringSplitGetPiece
 (
-	@String VARCHAR(1000),
-	@Separator VARCHAR(1),
-	@PieceNumber SMALLINT
+	@String varchar(1000),
+	@Separator varchar(1),
+	@PieceNumber smallint
 )
-RETURNS VARCHAR(1000)
-AS
-BEGIN
+returns varchar(1000)
+as
+begin
 
-	DECLARE @Result VARCHAR(1000);
+	declare @Result varchar(1000);
 
-	SELECT 
+	select 
 		@Result = s.value
-	FROM
+	from
 	(
-		SELECT 
-			ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS id,
+		select 
+			row_number() over (order by (select null)) as id,
 			value
-		FROM STRING_SPLIT(@String, @Separator)
+		from string_split(@String, @Separator)
 	) s
-	WHERE s.id = @PieceNumber;
+	where s.id = @PieceNumber;
 	
-	RETURN @Result;
+	return @Result;
 
-END;
-
+end;

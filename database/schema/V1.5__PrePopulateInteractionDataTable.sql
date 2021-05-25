@@ -2,13 +2,13 @@
     Schema V1.5 - Pre-populate Data.Interaction with known interaction IDs up front
 */
 
-INSERT INTO Data.Interaction
+insert into Data.Interaction
 (
 	InteractionId,
 	InteractionName,
     ServiceName
 )
-VALUES
+values
 (
 	1,
 	'urn:nhs:names:services:gpconnect:fhir:rest:read:metadata',

@@ -2,16 +2,16 @@
     Schema V1.2 - Create tables in the ApiReader schema
 */
 
-CREATE TABLE Logging.Log
+create table Logging.Log
 ( 
-	LogId BIGINT NOT NULL IDENTITY(1, 1),
-	Application VARCHAR(100) NULL,
-    Logged DATETIME2 NULL,
-    Level VARCHAR(100) NULL,
-    Message VARCHAR(8000) NULL,
-    Logger VARCHAR(8000) NULL, 
-    Callsite VARCHAR(8000) NULL, 
-    Exception VARCHAR(8000) NULL,
+	LogId bigint not null identity(1, 1),
+	Application varchar(100) null,
+    Logged datetime2 null,
+    Level varchar(100) null,
+    Message varchar(8000) null,
+    Logger varchar(8000) null, 
+    Callsite varchar(8000) null, 
+    Exception varchar(8000) null,
 
-    CONSTRAINT PK_Logging_Log_LogId PRIMARY KEY CLUSTERED (LogId)
+    constraint PK_Logging_Log_LogId primary key clustered (LogId)
 );

@@ -1,4 +1,9 @@
-CREATE OR ALTER procedure [ApiReader].[AddFile]
+if (object_id('ApiReader.AddFile') is not null)
+	drop procedure ApiReader.AddFile;
+
+go
+
+create procedure ApiReader.AddFile
 (
 	@FileTypeId smallint,
 	@FilePath varchar(500)
@@ -118,7 +123,7 @@ as
 		exec dbo.ThrowError 'QUERYTODATE is after EXTRACTDATE in @FilePath';
 		return;
 	end;
-
+	
 	set nocount off;
 
 	-----------------------------------------------------
@@ -154,4 +159,3 @@ as
 		null,
 		null
 	);
-GO

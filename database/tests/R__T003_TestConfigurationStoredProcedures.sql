@@ -1,6 +1,6 @@
-EXEC Configuration.GetBlobStorageConfiguration;
-EXEC Configuration.GetEmailConfiguration;
-EXEC Configuration.GetFilePathConstants;
-EXEC Configuration.GetFileTypes;
-EXEC Configuration.GetSplunkClientConfiguration;
-EXEC Configuration.GetSplunkInstances;
+exec Configuration.GetBlobStorageConfiguration;
+exec Configuration.GetEmailConfiguration;
+exec Configuration.GetFilePathConstants;
+exec Configuration.GetFileTypes;
+exec Configuration.GetSplunkClientConfiguration;
+exec Configuration.GetSplunkInstances;

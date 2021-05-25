@@ -7,12 +7,7 @@
 [![Build Actions Status](https://github.com/nhsconnect/gpconnect-analytics/workflows/continuous-integration/badge.svg)](https://github.com/nhsconnect/gpconnect-analytics/actions?)
 
 ## End-to-end data flow
-
 ![End-to-end diagram](documentation/end-to-end-data-flow.png)
-
-## Data import process
-
-![Data import process diagram](documentation/data-import-process.png)
 
 ## Data extracts
 

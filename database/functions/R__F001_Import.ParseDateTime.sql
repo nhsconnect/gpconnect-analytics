@@ -1,20 +1,31 @@
-CREATE OR ALTER FUNCTION Import.ParseDateTime
+if (object_id('Import.ParseDateTime') is not null)
+	drop function Import.ParseDateTime;
+
+go
+
+create function Import.ParseDateTime
 (
-	@DateTimeString VARCHAR(20)
+	@DateTimeString varchar(20)
 )
-RETURNS DATETIME2
-AS
-BEGIN
+returns datetime2
+as
+begin
+	
 	-----------------------------------------------------
 	-- parse datetime in format YYYYMMDDTHHmmss
 	-----------------------------------------------------
-	DECLARE @ExtractDateStringNewFormat VARCHAR(30)
-		= SUBSTRING(@DateTimeString, 1, 4) + '-' 
-			+ SUBSTRING(@DateTimeString, 5, 2) + '-' 
-			+ SUBSTRING(@DateTimeString, 7, 2) + ' '
-			+ SUBSTRING(@DateTimeString, 10, 2) + ':'
-			+ SUBSTRING(@DateTimeString, 12, 2) + ':' 
-			+ SUBSTRING(@DateTimeString, 14, 2)
 
-	RETURN CONVERT(DATETIME2, @ExtractDateStringNewFormat, 120);
-END;
+	if (len(@DateTimeString) != 15)
+		return convert(datetime2, 'error', 120);  -- force bad conversion
+
+	declare @ExtractDateStringNewFormat varchar(30)
+		= substring(@DateTimeString, 1, 4) + '-' 
+		+ substring(@DateTimeString, 5, 2) + '-' 
+		+ substring(@DateTimeString, 7, 2) + ' '
+		+ substring(@DateTimeString, 10, 2) + ':'
+		+ substring(@DateTimeString, 12, 2) + ':' 
+		+ substring(@DateTimeString, 14, 2)
+
+	return convert(datetime2, @ExtractDateStringNewFormat, 120);
+
+end;

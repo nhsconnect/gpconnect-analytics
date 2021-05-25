@@ -1,13 +1,13 @@
-DECLARE @ErrorWasCaught BIT = 0;
+declare @ErrorWasCaught bit = 0;
 
-BEGIN TRY
-    EXEC dbo.ThrowError 'Test error';
-END TRY
-BEGIN CATCH
-    SET @ErrorWasCaught = 1;
-END CATCH
+begin try
+    exec dbo.ThrowError 'Test error';
+end try
+begin catch
+    set @ErrorWasCaught = 1;
+end catch;
 
-IF (@ErrorWasCaught = 0)
-BEGIN
-    RAISERROR('Failure in dbo.ThrowError test', 18, 10) WITH NOWAIT;
-END;
+if (@ErrorWasCaught = 0)
+begin
+    raiserror('Failure in dbo.ThrowError test', 18, 10) with nowait;
+end;
