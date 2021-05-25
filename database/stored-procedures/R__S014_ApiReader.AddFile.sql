@@ -123,6 +123,8 @@ as
 		exec dbo.ThrowError 'QUERYTODATE is after EXTRACTDATE in @FilePath';
 		return;
 	end;
+	
+	set nocount off;
 
 	-----------------------------------------------------
 	-- add file
