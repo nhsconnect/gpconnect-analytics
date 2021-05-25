@@ -24,6 +24,7 @@ namespace gpconnect_analytics.DAL
         private SplunkClient _splunkClient;
         private FilePathConstants _filePathConstants;
         private List<SplunkInstance> _splunkInstances;
+        private Extract _extract;
 
         public SplunkService(IConfigurationService configurationService, IDataService dataService, IHttpClientFactory httpClientFactory, ILogger<SplunkService> logger)
         {
@@ -31,6 +32,12 @@ namespace gpconnect_analytics.DAL
             _dataService = dataService;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
+            _extract = new Extract
+            {
+                ExtractRequired = false,
+                QueryFromDate = DateTime.Today.AddDays(-2),
+                QueryToDate = DateTime.Today.AddDays(-1),
+            };
         }
 
         public async Task<ExtractResponse> DownloadCSV(FileType fileType)
@@ -43,13 +50,13 @@ namespace gpconnect_analytics.DAL
                 _splunkInstances = await _configurationService.GetSplunkInstances();
                 var splunkInstance = _splunkInstances.FirstOrDefault(x => x.Source == Helpers.SplunkInstances.cloud.ToString());
 
-                var extractDetails = await GetNextExtractDetails(fileType.FileTypeId);
-                if (extractDetails != null)
+                await GetNextExtractDetails(fileType.FileTypeId);
+                if (_extract.ExtractRequired)
                 {
-                    var extractResponseMessage = await GetSearchResults(fileType.SplunkQuery, extractDetails);
-                    var filePath = ConstructFilePath(splunkInstance, fileType, extractDetails);
+                    var extractResponseMessage = await GetSearchResults(fileType.SplunkQuery);
+                    var filePath = ConstructFilePath(splunkInstance, fileType);
                     extractResponseMessage.FilePath = filePath;
-                    extractResponseMessage.ExtractRequestDetails = extractDetails;
+                    extractResponseMessage.ExtractRequestDetails = _extract;
                     _logger.LogInformation("Splunk Cloud API returned response", extractResponseMessage);
 
                     return extractResponseMessage;
@@ -68,22 +75,22 @@ namespace gpconnect_analytics.DAL
             }
         }
 
-        private string ConstructFilePath(SplunkInstance splunkInstance, FileType fileType, Extract extractRequestDetails)
+        private string ConstructFilePath(SplunkInstance splunkInstance, FileType fileType)
         {
             var filePathString = new StringBuilder();
             filePathString.Append(fileType.DirectoryName);
             filePathString.Append(_filePathConstants.PathSeparator);
             filePathString.Append(splunkInstance.Source);
             filePathString.Append(_filePathConstants.PathSeparator);
-            filePathString.Append(extractRequestDetails.QueryFromDate.ToString("yyyy-MM"));
+            filePathString.Append(_extract.QueryFromDate.ToString("yyyy-MM"));
             filePathString.Append(_filePathConstants.PathSeparator);
             filePathString.Append(_filePathConstants.ProjectNameFilePrefix);
             filePathString.Append(_filePathConstants.ComponentSeparator);
             filePathString.Append(fileType.FileTypeFilePrefix);
             filePathString.Append(_filePathConstants.ComponentSeparator);
-            filePathString.Append(extractRequestDetails.QueryFromDate.ToString("yyyyMMddT000000"));
+            filePathString.Append(_extract.QueryFromDate.ToString("yyyyMMddT000000"));
             filePathString.Append(_filePathConstants.ComponentSeparator);
-            filePathString.Append(extractRequestDetails.QueryToDate.ToString("yyyyMMddT000000"));
+            filePathString.Append(_extract.QueryToDate.ToString("yyyyMMddT000000"));
             filePathString.Append(_filePathConstants.ComponentSeparator);
             filePathString.Append(splunkInstance.Source);
             filePathString.Append(_filePathConstants.ComponentSeparator);
@@ -92,7 +99,7 @@ namespace gpconnect_analytics.DAL
             return filePathString.ToString();
         }
 
-        private async Task<Extract> GetNextExtractDetails(int fileTypeId)
+        private async Task GetNextExtractDetails(int fileTypeId)
         {
             var procedureName = "ApiReader.DetermineNextExtract";
             var parameters = new DynamicParameters();
@@ -104,62 +111,49 @@ namespace gpconnect_analytics.DAL
             _logger.LogInformation("Determining next extract details", parameters);
             var result = await _dataService.ExecuteStoredProcedureWithOutputParameters(procedureName, parameters);
 
-            var extract = new Extract
+            if (result.Get<bool>("@ExtractRequired"))
             {
-                ExtractRequired = result.Get<bool>("@ExtractRequired"),
-                QueryFromDate = result.Get<DateTime>("@QueryFromDate"),
-                QueryToDate = result.Get<DateTime>("@QueryToDate")
-            };
-
-            return extract;
+                _extract.ExtractRequired = result.Get<bool>("@ExtractRequired");
+                _extract.QueryFromDate = result.Get<DateTime>("@QueryFromDate");
+                _extract.QueryToDate = result.Get<DateTime>("@QueryToDate");
+            }
         }
 
-        private async Task<ExtractResponse> GetSearchResults(string splunkQuery, Extract extractDetails)
+        private async Task<ExtractResponse> GetSearchResults(string splunkQuery)
         {
             var extractResponseMessage = new ExtractResponse { ExtractResponseMessage = new HttpResponseMessage() };
             try
             {
-                if (extractDetails.ExtractRequired)
+                splunkQuery = splunkQuery.Replace("{earliest}", _extract.QueryFromDate.ToString("MM/dd/yyyy:HH:mm:ss"));
+                splunkQuery = splunkQuery.Replace("{latest}", _extract.QueryToDate.ToString("MM/dd/yyyy:HH:mm:ss"));
+
+                _splunkClient = await _configurationService.GetSplunkClientConfiguration();
+
+                var client = _httpClientFactory.CreateClient("SplunkApiClient");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _splunkClient.ApiToken);
+                client.Timeout = new TimeSpan(0, 0, _splunkClient.QueryTimeout);
+
+                var uriBuilder = new UriBuilder
                 {
-                    splunkQuery = splunkQuery.Replace("{earliest}", extractDetails.QueryFromDate.ToString("MM/dd/yyyy:HH:mm:ss"));
-                    splunkQuery = splunkQuery.Replace("{latest}", extractDetails.QueryToDate.ToString("MM/dd/yyyy:HH:mm:ss"));
+                    Scheme = "https",
+                    Host = _splunkClient.HostName,
+                    Port = _splunkClient.HostPort,
+                    Path = _splunkClient.BaseUrl,
+                    Query = string.Format(_splunkClient.QueryParameters, HttpUtility.UrlEncode(splunkQuery))
+                };
 
-                    _splunkClient = await _configurationService.GetSplunkClientConfiguration();
+                var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
+                _logger.LogInformation("Sending download request to Splunk Cloud API", httpRequestMessage);
+                var response = await client.SendAsync(httpRequestMessage);
 
-                    if (extractDetails != null)
-                    {
-                        var client = _httpClientFactory.CreateClient("SplunkApiClient");
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _splunkClient.ApiToken);
-                        client.Timeout = new TimeSpan(0,0, _splunkClient.QueryTimeout);
-                        
-                        var uriBuilder = new UriBuilder
-                        {
-                            Scheme = "https",
-                            Host = _splunkClient.HostName,
-                            Port = _splunkClient.HostPort,
-                            Path = _splunkClient.BaseUrl,
-                            Query = string.Format(_splunkClient.QueryParameters, HttpUtility.UrlEncode(splunkQuery))
-                        };
+                var responseStream = await response.Content.ReadAsStreamAsync();
+                _logger.LogInformation("Reading content response stream from Splunk Cloud API", responseStream);
 
-                        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
-                        _logger.LogInformation("Sending download request to Splunk Cloud API", httpRequestMessage);
-                        var response = await client.SendAsync(httpRequestMessage);
-
-                        var responseStream = await response.Content.ReadAsStreamAsync();
-                        _logger.LogInformation("Reading content response stream from Splunk Cloud API", responseStream);
-
-                        extractResponseMessage.ExtractResponseStream = responseStream;
-                        extractResponseMessage.ExtractResponseMessage = response;
-                        extractResponseMessage.ExtractRequestDetails = extractDetails;
-                    }
-                }
-                else
-                {
-                    extractResponseMessage.ExtractResponseMessage.ReasonPhrase = "No extract required";
-                    extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.NoContent;
-                }
+                extractResponseMessage.ExtractResponseStream = responseStream;
+                extractResponseMessage.ExtractResponseMessage = response;
+                extractResponseMessage.ExtractRequestDetails = _extract;
             }
-            catch(OperationCanceledException operationCancelledException)
+            catch (OperationCanceledException operationCancelledException)
             {
                 extractResponseMessage.ExtractResponseMessage.ReasonPhrase = operationCancelledException.Message;
                 extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.RequestTimeout;

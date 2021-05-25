@@ -1,5 +1,6 @@
 using gpconnect_analytics.DAL.Interfaces;
 using gpconnect_analytics.DTO.Response.Configuration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System;
@@ -63,7 +64,7 @@ namespace gpconnect_analytics.Functions
                     }
                     else
                     {
-                        _logger?.LogWarning(result?.ExtractResponseMessage.ReasonPhrase, result?.ExtractResponseMessage.StatusCode);
+                        _logger?.LogWarning("No download required", StatusCodes.Status204NoContent);
                     }
                 }
             }
