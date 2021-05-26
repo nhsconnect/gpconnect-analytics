@@ -12,14 +12,16 @@ namespace gpconnect_analytics.DAL
     public class DataService : IDataService
     {
         private readonly ILogger<DataService> _logger;
+        private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
 
-        public DataService(ILogger<DataService> logger, IConfiguration configuration)
+        public DataService(ILogger<DataService> logger, IConfiguration configuration, IEmailService emailService)
         {
             _logger = logger;
             _configuration = configuration;
             _connectionString = _configuration.GetConnectionString(ConnectionStrings.GpConnectAnalytics);
+            _emailService = emailService;
         }
 
         public async Task<List<T>> ExecuteStoredProcedure<T>(string procedureName, DynamicParameters parameters) where T : class
@@ -35,6 +37,7 @@ namespace gpconnect_analytics.DAL
                 }
                 catch (Exception exc)
                 {
+                    await _emailService.SendProcessErrorEmail(exc);
                     _logger?.LogError(exc, $"An error has occurred while attempting to execute the function {procedureName}");
                     throw;
                 }
@@ -54,6 +57,7 @@ namespace gpconnect_analytics.DAL
                 }
                 catch (Exception exc)
                 {
+                    await _emailService.SendProcessErrorEmail(exc); 
                     _logger?.LogError(exc, $"An error has occurred while attempting to execute the function {procedureName}");
                     throw;
                 }
@@ -74,6 +78,7 @@ namespace gpconnect_analytics.DAL
                 }
                 catch (Exception exc)
                 {
+                    await _emailService.SendProcessErrorEmail(exc);
                     _logger?.LogError(exc, $"An error has occurred while attempting to execute the function {procedureName}");
                     throw;
                 }

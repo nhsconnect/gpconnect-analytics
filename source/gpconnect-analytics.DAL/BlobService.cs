@@ -20,10 +20,12 @@ namespace gpconnect_analytics.DAL
         private readonly BlobStorage _blobStorageConfiguration;
         private readonly QueueClient _queueClient;
         private readonly BlobServiceClient _blobServiceClient;
+        private readonly IEmailService _emailService;
 
-        public BlobService(IConfigurationService configurationService, ILogger<BlobService> logger)
+        public BlobService(IConfigurationService configurationService, ILogger<BlobService> logger, IEmailService emailService)
         {
             _logger = logger;
+            _emailService = emailService;
             _configurationService = configurationService;
             _blobStorageConfiguration = _configurationService.GetBlobStorageConfiguration().Result;
             _blobServiceClient = new BlobServiceClient(_blobStorageConfiguration.ConnectionString);
@@ -47,11 +49,13 @@ namespace gpconnect_analytics.DAL
             }
             catch (RequestFailedException requestFailedException)
             {
+                await _emailService.SendProcessErrorEmail(requestFailedException);
                 _logger.LogError(requestFailedException, "The container does not exist");
                 throw;
             }
             catch (Exception exc)
             {
+                await _emailService.SendProcessErrorEmail(exc);
                 _logger.LogError(exc, "An error occurred while trying to add a blob to the storage");
                 throw;
             }
@@ -76,11 +80,13 @@ namespace gpconnect_analytics.DAL
             }
             catch (RequestFailedException requestFailedException)
             {
+                await _emailService.SendProcessErrorEmail(requestFailedException);
                 _logger.LogError(requestFailedException, "The queue does not exist");
                 throw;
             }
             catch (Exception exc)
             {
+                await _emailService.SendProcessErrorEmail(exc);
                 _logger.LogError(exc, "An error occurred while trying to add a message to the queue");
                 throw;
             }

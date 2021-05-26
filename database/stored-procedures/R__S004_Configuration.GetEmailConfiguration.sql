@@ -14,6 +14,7 @@ as
 		AuthenticationRequired,
 		Username,
 		Password,
-		DefaultSubject
+		DefaultSubject,
+		RecipientAddress
 	from Configuration.Email;
 

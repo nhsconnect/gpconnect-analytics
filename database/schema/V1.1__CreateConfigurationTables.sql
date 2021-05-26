@@ -193,7 +193,8 @@ create table Configuration.Email
     AuthenticationRequired bit not null,
     Username varchar(100) not null,
     Password varchar(100) not null,
-    DefaultSubject varchar(100) not null
+    DefaultSubject varchar(100) not null,
+    RecipientAddress varchar(100) not null,
 
     constraint PK_Configuration_Email_SingleRowLock primary key (SingleRowLock),
     constraint CK_Configuration_Email_SingleRowLock check (SingleRowLock = 1),
@@ -201,7 +202,8 @@ create table Configuration.Email
     constraint CK_Configuration_Email_Hostname check (len(trim(Hostname)) > 0),
     constraint CK_Configuration_Email_Port check (port > 0),
     constraint CK_Configuration_Email_Encryption check (len(trim(Encryption)) > 0),
-    constraint CK_Configuration_Email_DefaultSubject check (len(trim(DefaultSubject)) > 0)
+    constraint CK_Configuration_Email_DefaultSubject check (len(trim(DefaultSubject)) > 0),
+    constraint CK_Configuration_Email_RecipientAddress check (len(trim(RecipientAddress)) > 0)
 );
 
 
@@ -215,7 +217,8 @@ insert into Configuration.Email
     AuthenticationRequired, 
     Username, 
     Password, 
-    DefaultSubject
+    DefaultSubject,
+    RecipientAddress
 )
 values
 (
@@ -227,5 +230,6 @@ values
     1, 
     '', 
     '', 
-    'GP Connect Analytics'
+    'GP Connect Analytics',
+    'recipient@test.com'
 );

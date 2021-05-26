@@ -1,4 +1,5 @@
 ﻿using gpconnect_analytics.DAL;
+using gpconnect_analytics.DAL.Interfaces;
 using gpconnect_analytics.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,7 @@ namespace gpconnect_analytics.Configuration.Infrastructure.Logging
 
             var nLogConfig = logFactory.Configuration;
             loggingBuilder.AddNLog(nLogConfig, nLogOptions);
-
+            
             return loggingBuilder;
         }
 
