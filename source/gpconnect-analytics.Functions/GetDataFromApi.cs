@@ -50,8 +50,6 @@ namespace gpconnect_analytics.Functions
         {
             try
             {
-                int zero = 0;
-                var wrong = 5 / zero;
                 if (fileType != null)
                 {
                     var result = await _splunkService.DownloadCSV(fileType);
@@ -59,7 +57,7 @@ namespace gpconnect_analytics.Functions
                     {
                         var uploadedBlob = await _blobService.AddObjectToBlob(result);
                         if (uploadedBlob != null)
-                        {         
+                        {
                             var fileAddedCount = await _importService.AddFile(fileType.FileTypeId, result.FilePath);
                             await _blobService.AddMessageToBlobQueue(fileAddedCount, fileType.FileTypeId, result.FilePath);
                         }
