@@ -21,16 +21,14 @@ namespace gpconnect_analytics.DAL
         private readonly IDataService _dataService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<SplunkService> _logger;
-        private readonly Lazy<IEmailService> _emailService;
         private SplunkClient _splunkClient;
         private FilePathConstants _filePathConstants;
         private List<SplunkInstance> _splunkInstances;
         private Extract _extract;
 
-        public SplunkService(IConfigurationService configurationService, IDataService dataService, IHttpClientFactory httpClientFactory, ILogger<SplunkService> logger, IEmailService emailService)
+        public SplunkService(IConfigurationService configurationService, IDataService dataService, IHttpClientFactory httpClientFactory, ILogger<SplunkService> logger)
         {
             _configurationService = configurationService;
-            _emailService = new Lazy<IEmailService>();
             _dataService = dataService;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
@@ -67,13 +65,11 @@ namespace gpconnect_analytics.DAL
             }
             catch (TimeoutException timeoutException)
             {
-                await _emailService.Value.SendProcessErrorEmail(timeoutException);
                 _logger.LogError(timeoutException, "A timeout error has occurred");
                 throw;
             }
             catch (Exception exc)
             {
-                await _emailService.Value.SendProcessErrorEmail(exc);
                 _logger.LogError(exc, "An error occurred in trying to execute a GET request");
                 throw;
             }
@@ -161,13 +157,11 @@ namespace gpconnect_analytics.DAL
             }
             catch (OperationCanceledException operationCancelledException)
             {
-                await _emailService.Value.SendProcessErrorEmail(operationCancelledException);
                 extractResponseMessage.ExtractResponseMessage.ReasonPhrase = operationCancelledException.Message;
                 extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.RequestTimeout;
             }
             catch (Exception exc)
             {
-                await _emailService.Value.SendProcessErrorEmail(exc);
                 extractResponseMessage.ExtractResponseMessage.ReasonPhrase = exc.Message;
                 extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.InternalServerError;
             }

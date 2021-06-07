@@ -17,17 +17,15 @@ namespace gpconnect_analytics.Functions
         private readonly IImportService _importService;
         private readonly ISplunkService _splunkService;
         private readonly IConfigurationService _configurationService;
-        private readonly IEmailService _emailService;
         private readonly List<FileType> _fileTypes;
 
-        public GetDataFromApi(ILogger<GetDataFromApi> logger, IBlobService blobService, IImportService importService, ISplunkService splunkService, IConfigurationService configurationService, IEmailService emailService)
+        public GetDataFromApi(ILogger<GetDataFromApi> logger, IBlobService blobService, IImportService importService, ISplunkService splunkService, IConfigurationService configurationService)
         {
             _logger = logger;
             _importService = importService;
             _splunkService = splunkService;
             _blobService = blobService;
             _configurationService = configurationService;
-            _emailService = emailService;
             if (_configurationService != null)
             {
                 _fileTypes = _configurationService.GetFileTypes().Result;
@@ -52,6 +50,8 @@ namespace gpconnect_analytics.Functions
         {
             try
             {
+                int zero = 0;
+                var wrong = 5 / zero;
                 if (fileType != null)
                 {
                     var result = await _splunkService.DownloadCSV(fileType);
@@ -72,7 +72,6 @@ namespace gpconnect_analytics.Functions
             }
             catch (Exception exc)
             {
-                await _emailService.SendProcessErrorEmail(exc);
                 _logger?.LogError(exc, $"An error has occurred while attempting to execute an Azure function");
                 throw;
             }

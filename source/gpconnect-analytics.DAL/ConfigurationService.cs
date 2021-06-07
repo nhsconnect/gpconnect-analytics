@@ -25,13 +25,6 @@ namespace gpconnect_analytics.DAL
             return result.FirstOrDefault();
         }
 
-        public async Task<Email> GetEmailConfiguration()
-        {
-            var result = await _dataService.ExecuteStoredProcedure<Email>("[Configuration].[GetEmailConfiguration]");
-            _logger.LogInformation($"Loading email configuration", result.FirstOrDefault());
-            return result.FirstOrDefault();
-        }
-
         public async Task<FilePathConstants> GetFilePathConstants()
         {
             var result = await _dataService.ExecuteStoredProcedure<FilePathConstants>("[Configuration].[GetFilePathConstants]");

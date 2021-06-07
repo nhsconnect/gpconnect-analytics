@@ -12,7 +12,6 @@ namespace gpconnect_analytics.DAL
     public class DataService : IDataService
     {
         private readonly ILogger<DataService> _logger;
-        private readonly Lazy<IEmailService> _emailService;
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
 
@@ -21,7 +20,6 @@ namespace gpconnect_analytics.DAL
             _logger = logger;
             _configuration = configuration;
             _connectionString = _configuration.GetConnectionString(ConnectionStrings.GpConnectAnalytics);
-            _emailService = new Lazy<IEmailService>();
         }
 
         public async Task<List<T>> ExecuteStoredProcedure<T>(string procedureName, DynamicParameters parameters) where T : class
@@ -37,7 +35,6 @@ namespace gpconnect_analytics.DAL
                 }
                 catch (Exception exc)
                 {
-                    await _emailService.Value.SendProcessErrorEmail(exc);
                     _logger?.LogError(exc, $"An error has occurred while attempting to execute the function {procedureName}");
                     throw;
                 }
@@ -57,7 +54,6 @@ namespace gpconnect_analytics.DAL
                 }
                 catch (Exception exc)
                 {
-                    await _emailService.Value.SendProcessErrorEmail(exc); 
                     _logger?.LogError(exc, $"An error has occurred while attempting to execute the function {procedureName}");
                     throw;
                 }
@@ -78,7 +74,6 @@ namespace gpconnect_analytics.DAL
                 }
                 catch (Exception exc)
                 {
-                    await _emailService.Value.SendProcessErrorEmail(exc);
                     _logger?.LogError(exc, $"An error has occurred while attempting to execute the function {procedureName}");
                     throw;
                 }
