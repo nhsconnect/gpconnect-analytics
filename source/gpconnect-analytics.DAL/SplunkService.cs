@@ -21,7 +21,7 @@ namespace gpconnect_analytics.DAL
         private readonly IDataService _dataService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<SplunkService> _logger;
-        private readonly IEmailService _emailService;
+        private readonly Lazy<IEmailService> _emailService;
         private SplunkClient _splunkClient;
         private FilePathConstants _filePathConstants;
         private List<SplunkInstance> _splunkInstances;
@@ -30,7 +30,7 @@ namespace gpconnect_analytics.DAL
         public SplunkService(IConfigurationService configurationService, IDataService dataService, IHttpClientFactory httpClientFactory, ILogger<SplunkService> logger, IEmailService emailService)
         {
             _configurationService = configurationService;
-            _emailService = emailService;
+            _emailService = new Lazy<IEmailService>();
             _dataService = dataService;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
@@ -67,13 +67,13 @@ namespace gpconnect_analytics.DAL
             }
             catch (TimeoutException timeoutException)
             {
-                await _emailService.SendProcessErrorEmail(timeoutException);
+                await _emailService.Value.SendProcessErrorEmail(timeoutException);
                 _logger.LogError(timeoutException, "A timeout error has occurred");
                 throw;
             }
             catch (Exception exc)
             {
-                await _emailService.SendProcessErrorEmail(exc);
+                await _emailService.Value.SendProcessErrorEmail(exc);
                 _logger.LogError(exc, "An error occurred in trying to execute a GET request");
                 throw;
             }
@@ -86,19 +86,19 @@ namespace gpconnect_analytics.DAL
             filePathString.Append(_filePathConstants.PathSeparator);
             filePathString.Append(splunkInstance.Source);
             filePathString.Append(_filePathConstants.PathSeparator);
-            filePathString.Append(_extract.QueryFromDate.ToString("yyyy-MM"));
+            filePathString.Append(_extract.QueryFromDate.ToString(Helpers.DateFormatConstants.FilePathQueryDateYearMonth));
             filePathString.Append(_filePathConstants.PathSeparator);
             filePathString.Append(_filePathConstants.ProjectNameFilePrefix);
             filePathString.Append(_filePathConstants.ComponentSeparator);
             filePathString.Append(fileType.FileTypeFilePrefix);
             filePathString.Append(_filePathConstants.ComponentSeparator);
-            filePathString.Append(_extract.QueryFromDate.ToString("yyyyMMddT000000"));
+            filePathString.Append(_extract.QueryFromDate.ToString(Helpers.DateFormatConstants.FilePathQueryDate));
             filePathString.Append(_filePathConstants.ComponentSeparator);
-            filePathString.Append(_extract.QueryToDate.ToString("yyyyMMddT000000"));
+            filePathString.Append(_extract.QueryToDate.ToString(Helpers.DateFormatConstants.FilePathQueryDate));
             filePathString.Append(_filePathConstants.ComponentSeparator);
             filePathString.Append(splunkInstance.Source);
             filePathString.Append(_filePathConstants.ComponentSeparator);
-            filePathString.Append(DateTime.UtcNow.ToString("yyyyMMddTHHmmss"));
+            filePathString.Append(DateTime.UtcNow.ToString(Helpers.DateFormatConstants.FilePathNowDate));
             filePathString.Append(_filePathConstants.FileExtension);
             return filePathString.ToString();
         }
@@ -125,11 +125,13 @@ namespace gpconnect_analytics.DAL
 
         private async Task<ExtractResponse> GetSearchResults(string splunkQuery)
         {
-            var extractResponseMessage = new ExtractResponse { ExtractResponseMessage = new HttpResponseMessage() };
+            var extractResponseMessage = new ExtractResponse { 
+                ExtractResponseMessage = new HttpResponseMessage() 
+            };
             try
             {
-                splunkQuery = splunkQuery.Replace("{earliest}", _extract.QueryFromDate.ToString("MM/dd/yyyy:HH:mm:ss"));
-                splunkQuery = splunkQuery.Replace("{latest}", _extract.QueryToDate.ToString("MM/dd/yyyy:HH:mm:ss"));
+                splunkQuery = splunkQuery.Replace("{earliest}", _extract.QueryFromDate.ToString(Helpers.DateFormatConstants.SplunkQueryDate));
+                splunkQuery = splunkQuery.Replace("{latest}", _extract.QueryToDate.ToString(Helpers.DateFormatConstants.SplunkQueryDate));
 
                 _splunkClient = await _configurationService.GetSplunkClientConfiguration();
 
@@ -159,13 +161,13 @@ namespace gpconnect_analytics.DAL
             }
             catch (OperationCanceledException operationCancelledException)
             {
-                await _emailService.SendProcessErrorEmail(operationCancelledException);
+                await _emailService.Value.SendProcessErrorEmail(operationCancelledException);
                 extractResponseMessage.ExtractResponseMessage.ReasonPhrase = operationCancelledException.Message;
                 extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.RequestTimeout;
             }
             catch (Exception exc)
             {
-                await _emailService.SendProcessErrorEmail(exc);
+                await _emailService.Value.SendProcessErrorEmail(exc);
                 extractResponseMessage.ExtractResponseMessage.ReasonPhrase = exc.Message;
                 extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.InternalServerError;
             }

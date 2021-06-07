@@ -1,10 +1,8 @@
 ﻿using Dapper;
 using gpconnect_analytics.DAL.Interfaces;
-using gpconnect_analytics.DTO.Response.Import;
 using gpconnect_analytics.DTO.Response.Queue;
 using Microsoft.Extensions.Logging;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace gpconnect_analytics.DAL
