@@ -12,5 +12,6 @@ as
  		FileTypeFilePrefix,
  		SplunkQuery,
  		QueryFromBaseDate,
- 		QueryPeriodHours
+ 		QueryPeriodHours,
+		Enabled
 	from Configuration.FileType;

@@ -73,7 +73,8 @@ create table Configuration.FileType
     SplunkQuery varchar(8000) not null,
     QueryFromBaseDate datetime2 not null,
     QueryPeriodHours integer not null,
-    StagingTableName varchar(200) not null
+    StagingTableName varchar(200) not null,
+    Enabled bit not null,
 
     constraint PK_Configuration_FileType_FileTypeId primary key clustered (FileTypeId),
     constraint UQ_Configuration_FileType_DirectoryName unique (DirectoryName),
@@ -89,7 +90,8 @@ insert into Configuration.FileType
     SplunkQuery,
     QueryFromBaseDate,
     QueryPeriodHours,
-    StagingTableName
+    StagingTableName,
+    Enabled
 )
 values
 (
@@ -99,7 +101,8 @@ values
     '| inputlookup asidLookup.csv',
     convert(datetime2, '2020-01-01 00:00:00'),
     24 * 7,
-    'Import.AsidLookupStaging'
+    'Import.AsidLookupStaging',
+    1
 ),
 (
     2,
@@ -108,7 +111,8 @@ values
     'search index=spine2vfmmonitor (logReference=SSP0001 OR logReference=SSP0015 OR logReference=SSP0016) earliest="{earliest}" latest="{latest}" | transaction internalID maxspan=1h keepevicted=true | table _time, SspTraceId, sspFrom, sspTo, interaction, responseCode, duration, responseSize, responseErrorMessage, method | eval _time=strftime(_time, "%Y-%m-%dT%H:%M:%S.%Q%z") | sort 0 _time',
     convert(datetime2, '2020-01-01 00:00:00'),
     24,
-    'Import.SspTransactionStaging'
+    'Import.SspTransactionStaging',
+    1
 );
 
 create table Configuration.SplunkClient
