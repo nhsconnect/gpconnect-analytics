@@ -40,7 +40,7 @@ namespace gpconnect_analytics.Functions
         }
 
         [FunctionName("GetDataFromSspTrans")]
-        public async Task GetDataFromSspTrans([TimerTrigger("0 0 1 * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
+        public async Task GetDataFromSspTrans([TimerTrigger("0 0 1 * * *", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
         {
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.ssptrans.ToString());
             await ExecuteDownloadFromSplunk(fileType);
