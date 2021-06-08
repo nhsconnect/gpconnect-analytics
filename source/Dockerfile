@@ -19,4 +19,4 @@ RUN dotnet publish "gpconnect-analytics.Functions.csproj" -c Release -o /app/pub
 FROM base AS final
 WORKDIR /home/site/wwwroot
 COPY --from=publish /app/publish .
-ENV AzureWebJobsScriptRoot=/home/site/wwwroot AzureFunctionsJobHost__Logging__Console__IsEnabled=true
+ENV AzureWebJobsScriptRoot=/home/site/wwwroot AzureFunctionsJobHost__Logging__Console__IsEnabled=true AzureFunctionsEnvironment=Development
