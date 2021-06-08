@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\gpconnect-analytics.DTO\gpconnect-analytics.DTO.csproj" />
-    <ProjectReference Include="..\gpconnect_analytics.Helpers\gpconnect_analytics.Helpers.csproj" />
+    <ProjectReference Include="..\gpconnect-analytics.Helpers\gpconnect-analytics.Helpers.csproj" />
   </ItemGroup>
 
 </Project>
