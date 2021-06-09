@@ -33,7 +33,7 @@ namespace gpconnect_analytics.Functions
         }
 
         [FunctionName("GetDataFromAsidLookup")]
-        public async Task GetDataFromAsidLookup([TimerTrigger("0 0 1 * * MON", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
+        public async Task GetDataFromAsidLookup([TimerTrigger("0 0 0 1-7 * MON", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
         {
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.asidlookup.ToString());
             await ExecuteDownloadFromSplunk(fileType);
