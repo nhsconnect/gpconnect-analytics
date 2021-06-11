@@ -17,14 +17,16 @@ namespace gpconnect_analytics.Functions
         private readonly IImportService _importService;
         private readonly ISplunkService _splunkService;
         private readonly IConfigurationService _configurationService;
+        private readonly IDataService _dataService;
         private readonly List<FileType> _fileTypes;
 
-        public GetDataFromApi(ILogger<GetDataFromApi> logger, IBlobService blobService, IImportService importService, ISplunkService splunkService, IConfigurationService configurationService)
+        public GetDataFromApi(ILogger<GetDataFromApi> logger, IBlobService blobService, IImportService importService, ISplunkService splunkService, IDataService dataService, IConfigurationService configurationService)
         {
             _logger = logger;
             _importService = importService;
             _splunkService = splunkService;
             _blobService = blobService;
+            _dataService = dataService;
             _configurationService = configurationService;
             if (_configurationService != null)
             {
@@ -32,47 +34,49 @@ namespace gpconnect_analytics.Functions
             }
         }
 
+        [FunctionName("PostPulse")]
+        public void PostPulse([TimerTrigger("0 */1 * * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
+        {
+            _dataService.ExecuteStoredProcedure("[Logging].[AddPulse]");
+        }
+
         [FunctionName("GetDataFromAsidLookup")]
-        public async Task GetDataFromAsidLookup([TimerTrigger("0 0 0 1-7 * MON", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
+        public async Task GetDataFromAsidLookup([TimerTrigger("0 0 0 1-7 * MON", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
         {
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.asidlookup.ToString());
-            await ExecuteDownloadFromSplunk(fileType);
+            if (fileType != null && fileType.Enabled)
+            {
+                await ExecuteDownloadFromSplunk(fileType);
+            }
         }
 
         [FunctionName("GetDataFromSspTrans")]
-        public async Task GetDataFromSspTrans([TimerTrigger("0 0 1 * * *", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
+        public async Task GetDataFromSspTrans([TimerTrigger("0 0 1 * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
         {
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.ssptrans.ToString());
-            await ExecuteDownloadFromSplunk(fileType);
+            if (fileType != null && fileType.Enabled)
+            {
+                await ExecuteDownloadFromSplunk(fileType);
+            }
         }
 
         private async Task ExecuteDownloadFromSplunk(FileType fileType)
         {
             try
             {
-                if (fileType != null)
+                var result = await _splunkService.DownloadCSV(fileType);
+                if (result?.ExtractResponseMessage.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    if (fileType.Enabled)
+                    var uploadedBlob = await _blobService.AddObjectToBlob(result);
+                    if (uploadedBlob != null)
                     {
-                        var result = await _splunkService.DownloadCSV(fileType);
-                        if (result?.ExtractResponseMessage.StatusCode == System.Net.HttpStatusCode.OK)
-                        {
-                            var uploadedBlob = await _blobService.AddObjectToBlob(result);
-                            if (uploadedBlob != null)
-                            {
-                                var fileAddedCount = await _importService.AddFile(fileType.FileTypeId, result.FilePath);
-                                await _blobService.AddMessageToBlobQueue(fileAddedCount, fileType.FileTypeId, result.FilePath);
-                            }
-                        }
-                        else
-                        {
-                            _logger?.LogWarning("No download required", StatusCodes.Status204NoContent);
-                        }
+                        var fileAddedCount = await _importService.AddFile(fileType.FileTypeId, result.FilePath);
+                        await _blobService.AddMessageToBlobQueue(fileAddedCount, fileType.FileTypeId, result.FilePath);
                     }
-                    else
-                    {
-                        _logger?.LogWarning($"Download type {fileType.DirectoryName} is not enabled");
-                    }
+                }
+                else
+                {
+                    _logger?.LogWarning("No download required", StatusCodes.Status204NoContent);
                 }
             }
             catch (Exception exc)
