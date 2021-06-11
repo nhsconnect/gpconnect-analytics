@@ -44,46 +44,53 @@ namespace gpconnect_analytics.Functions
         public async Task GetDataFromAsidLookup([TimerTrigger("0 0 0 1-7 * MON", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
         {
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.asidlookup.ToString());
-            if (fileType != null && fileType.Enabled)
-            {
-                await ExecuteDownloadFromSplunk(fileType);
-            }
+            await ExecuteDownloadFromSplunk(fileType);
         }
 
         [FunctionName("GetDataFromSspTrans")]
         public async Task GetDataFromSspTrans([TimerTrigger("0 0 1 * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
         {
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.ssptrans.ToString());
-            if (fileType != null && fileType.Enabled)
-            {
-                await ExecuteDownloadFromSplunk(fileType);
-            }
+            await ExecuteDownloadFromSplunk(fileType);
         }
 
         private async Task ExecuteDownloadFromSplunk(FileType fileType)
         {
             try
             {
-                var result = await _splunkService.DownloadCSV(fileType);
-                if (result?.ExtractResponseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+                if (FileTypeEnabled(fileType))
                 {
-                    var uploadedBlob = await _blobService.AddObjectToBlob(result);
-                    if (uploadedBlob != null)
+                    var result = await _splunkService.DownloadCSV(fileType);
+                    if (result?.ExtractResponseMessage.StatusCode == System.Net.HttpStatusCode.OK)
                     {
-                        var fileAddedCount = await _importService.AddFile(fileType.FileTypeId, result.FilePath);
-                        await _blobService.AddMessageToBlobQueue(fileAddedCount, fileType.FileTypeId, result.FilePath);
+                        var uploadedBlob = await _blobService.AddObjectToBlob(result);
+                        if (uploadedBlob != null)
+                        {
+                            var fileAddedCount = await _importService.AddFile(fileType.FileTypeId, result.FilePath);
+                            await _blobService.AddMessageToBlobQueue(fileAddedCount, fileType.FileTypeId, result.FilePath);
+                        }
+                    }
+                    else
+                    {
+                        _logger?.LogWarning("No download required", StatusCodes.Status204NoContent);
                     }
                 }
                 else
                 {
-                    _logger?.LogWarning("No download required", StatusCodes.Status204NoContent);
+                    _logger?.LogWarning($"Filetype {fileType.FileTypeFilePrefix} is not enabled. Please check if this is correct");
                 }
+
             }
             catch (Exception exc)
             {
                 _logger?.LogError(exc, $"An error has occurred while attempting to execute an Azure function");
                 throw;
             }
+        }
+
+        private bool FileTypeEnabled(FileType fileType)
+        {
+            return (fileType != null && fileType.Enabled);
         }
     }
 }
