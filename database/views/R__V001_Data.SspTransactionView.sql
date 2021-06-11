@@ -9,7 +9,7 @@ as
     select 
         s.SspTransactionId,
         s.Time,
-	TRY_CONVERT(DATE, s.Time) AS 'Date',
+	FORMAT(TRY_CONVERT(DATE, s.Time), 'dd MMMM yyyy') AS 'Date',
         s.FromAsid,
         aFrom.OdsCode as FromOdsCode,
         aFrom.OrgName as FromOrgName,
