@@ -17,7 +17,8 @@ FROM build AS publish
 RUN dotnet publish "gpconnect-analytics.Functions.csproj" -c Release -o /app/publish
 
 FROM base AS final
-WORKDIR /home/site/wwwroot
+WORKDIR /app
 COPY --from=publish /app/publish .
-ENV AzureWebJobsScriptRoot=/home/site/wwwroot
-ENV AzureFunctionsJobHost__Logging__Console__IsEnabled=true
+ENV "AzureWebJobsScriptRoot"="/app" \
+    "AzureFunctionsJobHost__Logging__Console__IsEnabled"="true" \
+    "ConnectionStrings:GPConnectAnalytics"="Server=tcp:cpbisuksqldev.database.windows.net,1433;Initial Catalog=GPConnectAnalytics;Persist Security Info=False;User ID=GpConnectAnalyticsOwnerLogin;Password=#y9BjE9bF4CyLyiCX5Jmjh$q2bsEZD;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"

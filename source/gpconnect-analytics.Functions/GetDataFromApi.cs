@@ -17,16 +17,14 @@ namespace gpconnect_analytics.Functions
         private readonly IImportService _importService;
         private readonly ISplunkService _splunkService;
         private readonly IConfigurationService _configurationService;
-        private readonly IDataService _dataService;
         private readonly List<FileType> _fileTypes;
 
-        public GetDataFromApi(ILogger<GetDataFromApi> logger, IBlobService blobService, IImportService importService, ISplunkService splunkService, IDataService dataService, IConfigurationService configurationService)
+        public GetDataFromApi(ILogger<GetDataFromApi> logger, IBlobService blobService, IImportService importService, ISplunkService splunkService, IConfigurationService configurationService)
         {
             _logger = logger;
             _importService = importService;
             _splunkService = splunkService;
             _blobService = blobService;
-            _dataService = dataService;
             _configurationService = configurationService;
             if (_configurationService != null)
             {
@@ -37,7 +35,7 @@ namespace gpconnect_analytics.Functions
         [FunctionName("PostPulse")]
         public void PostPulse([TimerTrigger("0 */1 * * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
         {
-            _dataService.ExecuteStoredProcedure("[Logging].[AddPulse]");
+            log.LogInformation($"Chris: {DateTime.UtcNow}");
         }
 
         [FunctionName("GetDataFromAsidLookup")]
@@ -61,25 +59,26 @@ namespace gpconnect_analytics.Functions
                 if (FileTypeEnabled(fileType))
                 {
                     var result = await _splunkService.DownloadCSV(fileType);
-                    if (result?.ExtractResponseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+                    switch (result?.ExtractResponseMessage.StatusCode)
                     {
-                        var uploadedBlob = await _blobService.AddObjectToBlob(result);
-                        if (uploadedBlob != null)
-                        {
-                            var fileAddedCount = await _importService.AddFile(fileType.FileTypeId, result.FilePath);
-                            await _blobService.AddMessageToBlobQueue(fileAddedCount, fileType.FileTypeId, result.FilePath);
-                        }
-                    }
-                    else
-                    {
-                        _logger?.LogWarning("No download required", StatusCodes.Status204NoContent);
+                        case System.Net.HttpStatusCode.OK:
+
+                            var uploadedBlob = await _blobService.AddObjectToBlob(result);
+                            if (uploadedBlob != null)
+                            {
+                                var fileAddedCount = await _importService.AddFile(fileType.FileTypeId, result.FilePath);
+                                await _blobService.AddMessageToBlobQueue(fileAddedCount, fileType.FileTypeId, result.FilePath);
+                            }
+                            break;
+                        default:
+                            _logger?.LogWarning(result?.ExtractResponseMessage.ToString());
+                            break;
                     }
                 }
                 else
                 {
                     _logger?.LogWarning($"Filetype {fileType.FileTypeFilePrefix} is not enabled. Please check if this is correct");
                 }
-
             }
             catch (Exception exc)
             {
