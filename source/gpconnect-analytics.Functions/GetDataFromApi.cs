@@ -1,6 +1,5 @@
 using gpconnect_analytics.DAL.Interfaces;
 using gpconnect_analytics.DTO.Response.Configuration;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System;
@@ -62,7 +61,6 @@ namespace gpconnect_analytics.Functions
                     switch (result?.ExtractResponseMessage.StatusCode)
                     {
                         case System.Net.HttpStatusCode.OK:
-
                             var uploadedBlob = await _blobService.AddObjectToBlob(result);
                             if (uploadedBlob != null)
                             {
