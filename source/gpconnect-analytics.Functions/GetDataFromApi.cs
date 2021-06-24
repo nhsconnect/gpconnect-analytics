@@ -31,23 +31,24 @@ namespace gpconnect_analytics.Functions
             }
         }
 
-        [FunctionName("PostPulse")]
-        public void PostPulse([TimerTrigger("0 */1 * * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
-        {
-            log.LogInformation($"Chris: {DateTime.UtcNow}");
-        }
-
         [FunctionName("GetDataFromAsidLookup")]
-        public async Task GetDataFromAsidLookup([TimerTrigger("0 0 0 1-7 * MON", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
+        public async Task GetDataFromAsidLookup([TimerTrigger("0 0 0 1-7 * MON", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
         {
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.asidlookup.ToString());
             await ExecuteDownloadFromSplunk(fileType);
         }
 
         [FunctionName("GetDataFromSspTrans")]
-        public async Task GetDataFromSspTrans([TimerTrigger("0 0 1 * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
+        public async Task GetDataFromSspTrans([TimerTrigger("0 0 1 * * *", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
         {
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.ssptrans.ToString());
+            await ExecuteDownloadFromSplunk(fileType);
+        }
+
+        [FunctionName("GetDataFromMeshTrans")]
+        public async Task GetDataFromMeshTrans([TimerTrigger("0 0 2 * * *", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
+        {
+            var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.meshtrans.ToString());
             await ExecuteDownloadFromSplunk(fileType);
         }
 

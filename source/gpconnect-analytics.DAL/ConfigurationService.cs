@@ -46,11 +46,11 @@ namespace gpconnect_analytics.DAL
             return result.FirstOrDefault();
         }
 
-        public async Task<List<SplunkInstance>> GetSplunkInstances()
+        public async Task<SplunkInstance> GetSplunkInstance(Helpers.SplunkInstances splunkInstance)
         {
             var result = await _dataService.ExecuteStoredProcedure<SplunkInstance>("[Configuration].[GetSplunkInstances]");
-            _logger.LogInformation($"Loading splunk instances", result);
-            return result;
+            _logger.LogInformation($"Loading splunk instance", result);
+            return result.FirstOrDefault(x => x.Source == splunkInstance.ToString());
         }
     }
 }

@@ -237,6 +237,14 @@ as
                     @RowsUpdated = @RowsUpdated output,
                     @RowsDeleted = @RowsDeleted output;
             end
+	    else if (@FileTypeId = 3)
+            begin
+                exec Import.MigrateMeshTransactionData
+                    @FileId = @FileId,
+                    @RowsAdded = @RowsAdded output,
+                    @RowsUpdated = @RowsUpdated output,
+                    @RowsDeleted = @RowsDeleted output;
+            end
             else
             begin
                 exec dbo.ThrowError 'Migrate data stored procedure does not exists for that @FileTypeId';

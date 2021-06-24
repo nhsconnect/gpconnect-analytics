@@ -113,6 +113,16 @@ values
     24,
     'Import.SspTransactionStaging',
     1
+),
+(
+    3,
+    'mesh-transactions',
+    'meshtrans',
+    'search index=spine2vfmmonitor (logReference=MEX0027a) (workflow=GPFED_CONSULT*) earliest="{earliest}" latest="{latest}" | table _time sender senderOdsCode senderName recipient recipientOdsCode recipientName workflow fileSize | eval _time=strftime(_time, "%Y-%m-%dT%H:%M:%S.%Q%z") | sort 0 _time',
+    convert(datetime2, '2021-06-22 00:00:00'),
+    24,
+    'Import.MeshTransactionStaging',
+    1
 );
 
 create table Configuration.SplunkClient

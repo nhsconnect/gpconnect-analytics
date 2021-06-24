@@ -27,7 +27,7 @@ namespace gpconnect_analytics.Configuration.Infrastructure.Logging
 
             nLogConfiguration.AddRule(NLog.LogLevel.Trace, NLog.LogLevel.Fatal, consoleTarget);
             nLogConfiguration.AddRule(NLog.LogLevel.Trace, NLog.LogLevel.Fatal, databaseTarget);
-            nLogConfiguration.AddRule(NLog.LogLevel.Warn, NLog.LogLevel.Fatal, mailTarget);
+            nLogConfiguration.AddRule(NLog.LogLevel.Error, NLog.LogLevel.Fatal, mailTarget);
 
             nLogConfiguration.AddTarget(consoleTarget);
             nLogConfiguration.AddTarget(databaseTarget);

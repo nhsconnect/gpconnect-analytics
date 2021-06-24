@@ -10,6 +10,6 @@ namespace gpconnect_analytics.DAL.Interfaces
         Task<FilePathConstants> GetFilePathConstants();
         Task<List<FileType>> GetFileTypes();
         Task<SplunkClient> GetSplunkClientConfiguration();
-        Task<List<SplunkInstance>> GetSplunkInstances();
+        Task<SplunkInstance> GetSplunkInstance(Helpers.SplunkInstances splunkInstance);
     }
 }

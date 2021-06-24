@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -23,7 +24,6 @@ namespace gpconnect_analytics.DAL
         private readonly ILogger<SplunkService> _logger;
         private SplunkClient _splunkClient;
         private FilePathConstants _filePathConstants;
-        private List<SplunkInstance> _splunkInstances;
         private Extract _extract;
 
         public SplunkService(IConfigurationService configurationService, IDataService dataService, IHttpClientFactory httpClientFactory, ILogger<SplunkService> logger)
@@ -46,9 +46,7 @@ namespace gpconnect_analytics.DAL
             {
                 _logger.LogInformation("Downloading CSV from Splunk Cloud API", fileType);
                 _filePathConstants = await _configurationService.GetFilePathConstants();
-
-                _splunkInstances = await _configurationService.GetSplunkInstances();
-                var splunkInstance = _splunkInstances.FirstOrDefault(x => x.Source == Helpers.SplunkInstances.cloud.ToString());
+                var splunkInstance = await _configurationService.GetSplunkInstance(Helpers.SplunkInstances.cloud);
 
                 await GetNextExtractDetails(fileType.FileTypeId);
                 if (_extract.ExtractRequired)
@@ -121,8 +119,9 @@ namespace gpconnect_analytics.DAL
 
         private async Task<ExtractResponse> GetSearchResults(string splunkQuery)
         {
-            var extractResponseMessage = new ExtractResponse { 
-                ExtractResponseMessage = new HttpResponseMessage() 
+            var extractResponseMessage = new ExtractResponse
+            {
+                ExtractResponseMessage = new HttpResponseMessage()
             };
             try
             {
@@ -130,30 +129,39 @@ namespace gpconnect_analytics.DAL
                 splunkQuery = splunkQuery.Replace("{latest}", _extract.QueryToDate.ToString(Helpers.DateFormatConstants.SplunkQueryDate));
 
                 _splunkClient = await _configurationService.GetSplunkClientConfiguration();
+                var apiTokenExpiry = HasApiTokenExpired(_splunkClient.ApiToken);
 
-                var client = _httpClientFactory.CreateClient("SplunkApiClient");
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _splunkClient.ApiToken);
-                client.Timeout = new TimeSpan(0, 0, _splunkClient.QueryTimeout);
-
-                var uriBuilder = new UriBuilder
+                if (!apiTokenExpiry.Item1)
                 {
-                    Scheme = "https",
-                    Host = _splunkClient.HostName,
-                    Port = _splunkClient.HostPort,
-                    Path = _splunkClient.BaseUrl,
-                    Query = string.Format(_splunkClient.QueryParameters, HttpUtility.UrlEncode(splunkQuery))
-                };
+                    var client = _httpClientFactory.CreateClient("SplunkApiClient");
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _splunkClient.ApiToken);
+                    client.Timeout = new TimeSpan(0, 0, _splunkClient.QueryTimeout);
 
-                var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
-                _logger.LogInformation("Sending download request to Splunk Cloud API", httpRequestMessage);
-                var response = await client.SendAsync(httpRequestMessage);
+                    var uriBuilder = new UriBuilder
+                    {
+                        Scheme = "https",
+                        Host = _splunkClient.HostName,
+                        Port = _splunkClient.HostPort,
+                        Path = _splunkClient.BaseUrl,
+                        Query = string.Format(_splunkClient.QueryParameters, HttpUtility.UrlEncode(splunkQuery))
+                    };
 
-                var responseStream = await response.Content.ReadAsStreamAsync();
-                _logger.LogInformation("Reading content response stream from Splunk Cloud API", responseStream);
+                    var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
+                    _logger.LogInformation("Sending download request to Splunk Cloud API", httpRequestMessage);
+                    var response = await client.SendAsync(httpRequestMessage);
 
-                extractResponseMessage.ExtractResponseStream = responseStream;
-                extractResponseMessage.ExtractResponseMessage = response;
-                extractResponseMessage.ExtractRequestDetails = _extract;
+                    var responseStream = await response.Content.ReadAsStreamAsync();
+                    _logger.LogInformation("Reading content response stream from Splunk Cloud API", responseStream);
+
+                    extractResponseMessage.ExtractResponseStream = responseStream;
+                    extractResponseMessage.ExtractResponseMessage = response;
+                    extractResponseMessage.ExtractRequestDetails = _extract;
+                }
+                else
+                {
+                    extractResponseMessage.ExtractResponseMessage.ReasonPhrase = $"The authentication has expired because it is valid up to {apiTokenExpiry.Item2}";
+                    extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.Unauthorized;
+                }
             }
             catch (OperationCanceledException operationCancelledException)
             {
@@ -166,6 +174,12 @@ namespace gpconnect_analytics.DAL
                 extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.InternalServerError;
             }
             return extractResponseMessage;
+        }
+
+        private (bool, DateTime) HasApiTokenExpired(string apiToken)
+        {
+            var jwtToken = new JwtSecurityToken(apiToken);
+            return (DateTime.UtcNow > jwtToken.ValidTo, jwtToken.ValidTo);
         }
     }
 }
