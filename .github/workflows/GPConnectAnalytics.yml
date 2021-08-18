@@ -1,30 +1,27 @@
 name: Build and deploy .NET Core Function App to GPConnectAnalytics
 on:
-  push:
-    branches:
-    - develop
+  [push]
+
 env:
   AZURE_FUNCTIONAPP_NAME: GPConnectAnalytics
   AZURE_FUNCTIONAPP_PACKAGE_PATH: gpconnect-analytics.Functions\published
-  AZURE_FUNCTIONAPP_PUBLISH_PROFILE: ${{ secrets.GPCONNECTANALYTICS_FFFF }}
-  CONFIGURATION: Release
   DOTNET_CORE_VERSION: 3.1.x
-  WORKING_DIRECTORY: gpconnect-analytics.Functions
 jobs:
   build-and-deploy:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@develop
+    - name: Check out the repo
+    - uses: actions/checkout@main
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Restore
-      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
-    - name: Build
-      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
-    - name: Publish
-      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}"
+    - name: 'Resolve Project Dependencies Using Dotnet'
+      shell: pwsh
+      run: |
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        dotnet build --configuration Release --output ./output
+        popd
     - name: Deploy to Azure Function App
       uses: Azure/functions-action@v1
       with:
