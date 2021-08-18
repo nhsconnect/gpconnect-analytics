@@ -4,7 +4,7 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_NAME: GPConnectAnalytics
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: gpconnect-analytics.Functions\published
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
   DOTNET_CORE_VERSION: 3.1.x
 jobs:
   build-and-deploy:
