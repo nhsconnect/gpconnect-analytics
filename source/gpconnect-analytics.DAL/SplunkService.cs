@@ -44,7 +44,6 @@ namespace gpconnect_analytics.DAL
         {
             try
             {
-                _logger.LogInformation("Downloading CSV from Splunk Cloud API", fileType);
                 _filePathConstants = await _configurationService.GetFilePathConstants();
                 var splunkInstance = await _configurationService.GetSplunkInstance(Helpers.SplunkInstances.cloud);
 
@@ -55,7 +54,6 @@ namespace gpconnect_analytics.DAL
                     var filePath = ConstructFilePath(splunkInstance, fileType);
                     extractResponseMessage.FilePath = filePath;
                     extractResponseMessage.ExtractRequestDetails = _extract;
-                    _logger.LogInformation("Splunk Cloud API returned response", extractResponseMessage);
 
                     return extractResponseMessage;
                 }
@@ -139,7 +137,7 @@ namespace gpconnect_analytics.DAL
 
                     var uriBuilder = new UriBuilder
                     {
-                        Scheme = "https",
+                        Scheme = Uri.UriSchemeHttps,
                         Host = _splunkClient.HostName,
                         Port = _splunkClient.HostPort,
                         Path = _splunkClient.BaseUrl,
@@ -147,11 +145,8 @@ namespace gpconnect_analytics.DAL
                     };
 
                     var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
-                    _logger.LogInformation("Sending download request to Splunk Cloud API", httpRequestMessage);
                     var response = await client.SendAsync(httpRequestMessage);
-
                     var responseStream = await response.Content.ReadAsStreamAsync();
-                    _logger.LogInformation("Reading content response stream from Splunk Cloud API", responseStream);
 
                     extractResponseMessage.ExtractResponseStream = responseStream;
                     extractResponseMessage.ExtractResponseMessage = response;
