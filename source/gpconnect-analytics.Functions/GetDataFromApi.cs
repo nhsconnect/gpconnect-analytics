@@ -39,14 +39,14 @@ namespace gpconnect_analytics.Functions
         }
 
         [FunctionName("GetDataFromSspTrans")]
-        public async Task GetDataFromSspTrans([TimerTrigger("0 0 0 * * *", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
+        public async Task GetDataFromSspTrans([TimerTrigger("0 0 6 * * *", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
         {
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.ssptrans.ToString());
             await ExecuteDownloadFromSplunk(fileType);
         }
 
         [FunctionName("GetDataFromMeshTrans")]
-        public async Task GetDataFromMeshTrans([TimerTrigger("0 0 1 * * *", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
+        public async Task GetDataFromMeshTrans([TimerTrigger("0 0 7 * * *", RunOnStartup = false)] TimerInfo myTimer, ILogger log)
         {
             var fileType = _fileTypes.FirstOrDefault(x => x.FileTypeFilePrefix == Helpers.FileTypes.meshtrans.ToString());
             await ExecuteDownloadFromSplunk(fileType);
