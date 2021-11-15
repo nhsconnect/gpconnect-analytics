@@ -5,10 +5,10 @@ GO
 CREATE VIEW [Data].[MeshTransactionView]
 AS
 	SELECT
-        	m.MeshTransactionId,
-	        m.Time,
-		FORMAT(TRY_CONVERT(DATE, m.Time), 'dd MMMM yyyy') AS 'Date',
-        	m.Sender,
+		m.MeshTransactionId,
+		CONVERT(DATE, FORMAT(TRY_CONVERT(DATE, m.Time), 'dd MMMM yyyy')) AS 'Date',
+		CONVERT(TIME(0), FORMAT(m.Time, 'HH:mm:ss')) AS 'Time',
+	        m.Sender,
 		m.SenderOdsCode,
 		m.SenderName,
 		m.Recipient,
@@ -18,3 +18,6 @@ AS
 		m.Filesize
 	FROM
 		Data.MeshTransaction m;
+GO
+
+
