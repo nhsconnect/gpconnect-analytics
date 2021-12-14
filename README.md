@@ -19,7 +19,7 @@
 
 ### 1. Get the ASID lookup list
 
-`| inputlookup asidLookup.csv`
+`| inputlookup asidLookup.csv | table ASID, MName, NACS, OrgName, OrgType, PName, PostCode`
 
 ### 2. Get SSP transactions
 
