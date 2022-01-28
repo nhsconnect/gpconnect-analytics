@@ -92,7 +92,7 @@ as
 	-----------------------------------------------------
 	-- validate dates in @FilePath
 	-----------------------------------------------------
-	declare @CurrentDate datetime = sysdatetimeoffset() at time zone 'GMT Standard Time'
+	declare @CurrentDate datetime = DATEADD(MINUTE, 1, sysdatetimeoffset() at time zone 'GMT Standard Time');
 
 	if (@ExtractDate > @CurrentDate)
 	begin
