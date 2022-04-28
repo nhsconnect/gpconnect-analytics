@@ -72,6 +72,7 @@ namespace gpconnect_analytics.Functions
                         default:
                             _logger?.LogWarning(result?.ExtractResponseMessage.ToString());
                             break;
+                            throw new Exception($"Splunk has returned the following HTTP status code {result?.ExtractResponseMessage.StatusCode}");
                     }
                 }
                 else
