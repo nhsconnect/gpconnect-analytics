@@ -30,7 +30,7 @@ namespace gpconnect_analytics.DAL
                 {
                     sqlConnection.InfoMessage += SqlConnection_InfoMessage;
                     _logger.LogInformation($"Executing stored procedure {procedureName}", parameters);
-                    var results = await sqlConnection.QueryAsync<T>(procedureName, parameters, commandType: System.Data.CommandType.StoredProcedure, commandTimeout: 600);
+                    var results = await sqlConnection.QueryAsync<T>(procedureName, parameters, commandType: System.Data.CommandType.StoredProcedure, commandTimeout: 0);
                     return results.AsList();
                 }
                 catch (Exception exc)
@@ -49,7 +49,7 @@ namespace gpconnect_analytics.DAL
                 {
                     sqlConnection.InfoMessage += SqlConnection_InfoMessage;
                     _logger.LogInformation($"Executing stored procedure {procedureName}", parameters);
-                    await SqlMapper.ExecuteAsync(sqlConnection, procedureName, parameters, commandType: System.Data.CommandType.StoredProcedure, commandTimeout: 600);
+                    await SqlMapper.ExecuteAsync(sqlConnection, procedureName, parameters, commandType: System.Data.CommandType.StoredProcedure, commandTimeout: 0);
                     return parameters;
                 }
                 catch (Exception exc)
@@ -69,7 +69,7 @@ namespace gpconnect_analytics.DAL
                 {
                     sqlConnection.InfoMessage += SqlConnection_InfoMessage;
                     _logger.LogInformation($"Executing stored procedure {procedureName}", parameters);
-                    var result = await sqlConnection.ExecuteAsync(procedureName, parameters, commandType: System.Data.CommandType.StoredProcedure, commandTimeout: 600);
+                    var result = await sqlConnection.ExecuteAsync(procedureName, parameters, commandType: System.Data.CommandType.StoredProcedure, commandTimeout: 0);
                     return result;
                 }
                 catch (Exception exc)

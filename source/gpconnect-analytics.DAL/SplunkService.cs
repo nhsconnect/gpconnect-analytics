@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using gpconnect_analytics.DAL.Interfaces;
+using gpconnect_analytics.DTO.Request;
 using gpconnect_analytics.DTO.Response.Configuration;
 using gpconnect_analytics.DTO.Response.Splunk;
 using Microsoft.Extensions.Logging;
@@ -30,32 +31,28 @@ namespace gpconnect_analytics.DAL
             _dataService = dataService;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            _extract = new Extract
-            {
-                ExtractRequired = false,
-                QueryFromDate = DateTime.Today.AddDays(-2),
-                QueryToDate = DateTime.Today.AddDays(-1),
-            };
+            _extract = new Extract();
         }
 
-        public async Task<ExtractResponse> DownloadCSV(FileType fileType)
+        public async Task<ExtractResponse> DownloadCSVDateRangeAsync(FileType fileType, UriRequest uriRequest, bool isToday)
         {
             try
             {
                 _filePathConstants = await _configurationService.GetFilePathConstants();
                 var splunkInstance = await _configurationService.GetSplunkInstance(Helpers.SplunkInstances.cloud);
 
-                await GetNextExtractDetails(fileType.FileTypeId);
-                if (_extract.ExtractRequired)
-                {
-                    var extractResponseMessage = await GetSearchResults(fileType.SplunkQuery);
-                    var filePath = ConstructFilePath(splunkInstance, fileType);
-                    extractResponseMessage.FilePath = filePath;
-                    extractResponseMessage.ExtractRequestDetails = _extract;
+                _extract.Override = true;
+                _extract.QueryFromDate = uriRequest.EarliestDate;
+                _extract.QueryToDate = uriRequest.LatestDate;
+                _extract.QueryHour = uriRequest.Hour;
 
-                    return extractResponseMessage;
-                }
-                return null;
+                var filePath = ConstructFilePath(splunkInstance, fileType, isToday, true);
+                var extractResponse = await GetSearchResultFromRequestUri(uriRequest);
+
+                extractResponse.FilePath = filePath;
+                extractResponse.ExtractRequestDetails = _extract;
+
+                return extractResponse;
             }
             catch (TimeoutException timeoutException)
             {
@@ -67,9 +64,54 @@ namespace gpconnect_analytics.DAL
                 _logger.LogError(exc, "An error occurred in trying to execute a GET request");
                 throw;
             }
+        }        
+
+        private async Task<ExtractResponse> GetSearchResultFromRequestUri(UriRequest uriRequest)
+        {
+            var extractResponseMessage = new ExtractResponse
+            {
+                ExtractResponseMessage = new HttpResponseMessage()
+            };
+            try
+            {
+                _splunkClient = await _configurationService.GetSplunkClientConfiguration();
+                var apiTokenExpiry = HasApiTokenExpired(_splunkClient.ApiToken);
+
+                if (!apiTokenExpiry.Item1)
+                {
+                    var client = _httpClientFactory.CreateClient("SplunkApiClient");
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _splunkClient.ApiToken);
+                    client.Timeout = new TimeSpan(0, 0, _splunkClient.QueryTimeout);
+
+                    var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uriRequest.Request);
+                    var response = await client.SendAsync(httpRequestMessage);
+                    var responseStream = await response.Content.ReadAsStreamAsync();
+
+                    extractResponseMessage.ExtractResponseStream = responseStream;
+                    extractResponseMessage.ExtractResponseMessage = response;
+                    extractResponseMessage.ExtractRequestDetails = _extract;
+                    extractResponseMessage.UriRequest = uriRequest;
+                }
+                else
+                {
+                    extractResponseMessage.ExtractResponseMessage.ReasonPhrase = $"The authentication has expired because it is valid up to {apiTokenExpiry.Item2}";
+                    extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.Unauthorized;
+                }
+            }
+            catch (OperationCanceledException operationCancelledException)
+            {
+                extractResponseMessage.ExtractResponseMessage.ReasonPhrase = operationCancelledException.Message;
+                extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.RequestTimeout;
+            }
+            catch (Exception exc)
+            {
+                extractResponseMessage.ExtractResponseMessage.ReasonPhrase = exc.Message;
+                extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+            }
+            return extractResponseMessage;
         }
 
-        private string ConstructFilePath(SplunkInstance splunkInstance, FileType fileType)
+        private string ConstructFilePath(SplunkInstance splunkInstance, FileType fileType, bool isToday, bool setDateAsMidnight = false)
         {
             var filePathString = new StringBuilder();
             filePathString.Append(fileType.DirectoryName);
@@ -82,13 +124,20 @@ namespace gpconnect_analytics.DAL
             filePathString.Append(_filePathConstants.ComponentSeparator);
             filePathString.Append(fileType.FileTypeFilePrefix);
             filePathString.Append(_filePathConstants.ComponentSeparator);
-            filePathString.Append(_extract.QueryFromDate.ToString(Helpers.DateFormatConstants.FilePathQueryDate));
+            filePathString.Append($"{_extract.QueryFromDate.ToString(Helpers.DateFormatConstants.FilePathQueryDate)}T{_extract.QueryHour.ToString(Helpers.DateFormatConstants.FilePathQueryHour)}");
             filePathString.Append(_filePathConstants.ComponentSeparator);
-            filePathString.Append(_extract.QueryToDate.ToString(Helpers.DateFormatConstants.FilePathQueryDate));
+            filePathString.Append($"{_extract.QueryToDate.ToString(Helpers.DateFormatConstants.FilePathQueryDate)}T{_extract.QueryHour.ToString(Helpers.DateFormatConstants.FilePathQueryHour)}");
             filePathString.Append(_filePathConstants.ComponentSeparator);
             filePathString.Append(splunkInstance.Source);
             filePathString.Append(_filePathConstants.ComponentSeparator);
-            filePathString.Append(DateTime.UtcNow.ToString(Helpers.DateFormatConstants.FilePathNowDate));
+            if (!isToday)
+            {
+                filePathString.Append(setDateAsMidnight ? DateTime.Today.ToString(Helpers.DateFormatConstants.FilePathNowDate) : DateTime.UtcNow.ToString(Helpers.DateFormatConstants.FilePathNowDate));
+            }
+            else
+            {
+                filePathString.Append(DateTime.Today.AddDays(1).AddSeconds(-1).ToString(Helpers.DateFormatConstants.FilePathNowDate));
+            }
             filePathString.Append(_filePathConstants.FileExtension);
             return filePathString.ToString();
         }
@@ -111,62 +160,6 @@ namespace gpconnect_analytics.DAL
                 _extract.QueryFromDate = result.Get<DateTime>("@QueryFromDate");
                 _extract.QueryToDate = result.Get<DateTime>("@QueryToDate");
             }
-        }
-
-        private async Task<ExtractResponse> GetSearchResults(string splunkQuery)
-        {
-            var extractResponseMessage = new ExtractResponse
-            {
-                ExtractResponseMessage = new HttpResponseMessage()
-            };
-            try
-            {
-                splunkQuery = splunkQuery.Replace("{earliest}", _extract.QueryFromDate.ToString(Helpers.DateFormatConstants.SplunkQueryDate));
-                splunkQuery = splunkQuery.Replace("{latest}", _extract.QueryToDate.ToString(Helpers.DateFormatConstants.SplunkQueryDate));
-
-                _splunkClient = await _configurationService.GetSplunkClientConfiguration();
-                var apiTokenExpiry = HasApiTokenExpired(_splunkClient.ApiToken);
-
-                if (!apiTokenExpiry.Item1)
-                {
-                    var client = _httpClientFactory.CreateClient("SplunkApiClient");
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _splunkClient.ApiToken);
-                    client.Timeout = new TimeSpan(0, 0, _splunkClient.QueryTimeout);
-
-                    var uriBuilder = new UriBuilder
-                    {
-                        Scheme = Uri.UriSchemeHttps,
-                        Host = _splunkClient.HostName,
-                        Port = _splunkClient.HostPort,
-                        Path = _splunkClient.BaseUrl,
-                        Query = string.Format(_splunkClient.QueryParameters, HttpUtility.UrlEncode(splunkQuery))
-                    };
-
-                    var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
-                    var response = await client.SendAsync(httpRequestMessage);
-                    var responseStream = await response.Content.ReadAsStreamAsync();
-
-                    extractResponseMessage.ExtractResponseStream = responseStream;
-                    extractResponseMessage.ExtractResponseMessage = response;
-                    extractResponseMessage.ExtractRequestDetails = _extract;
-                }
-                else
-                {
-                    extractResponseMessage.ExtractResponseMessage.ReasonPhrase = $"The authentication has expired because it is valid up to {apiTokenExpiry.Item2}";
-                    extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.Unauthorized;
-                }
-            }
-            catch (OperationCanceledException operationCancelledException)
-            {
-                extractResponseMessage.ExtractResponseMessage.ReasonPhrase = operationCancelledException.Message;
-                extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.RequestTimeout;
-            }
-            catch (Exception exc)
-            {
-                extractResponseMessage.ExtractResponseMessage.ReasonPhrase = exc.Message;
-                extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-            }
-            return extractResponseMessage;
         }
 
         private (bool, DateTime) HasApiTokenExpired(string apiToken)

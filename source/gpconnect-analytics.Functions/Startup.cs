@@ -19,6 +19,8 @@ namespace gpconnect_analytics.Functions
             builder.Services.AddScoped<IImportService, ImportService>();
             builder.Services.AddScoped<ISplunkService, SplunkService>();
             builder.Services.AddScoped<IDataService, DataService>();
+            builder.Services.AddScoped<IBatchService, BatchService>();
+            builder.Services.AddScoped<ILoggingService, LoggingService>();
 
             var configuration = builder.GetContext().Configuration;
             builder.Services.AddLogging(loggingBuilder => LoggingExtensions.ConfigureLoggingServices(loggingBuilder, configuration));

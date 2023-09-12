@@ -1,5 +1,6 @@
 ﻿using gpconnect_analytics.DAL.Interfaces;
 using gpconnect_analytics.DTO.Response.Configuration;
+using gpconnect_analytics.Helpers;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +38,12 @@ namespace gpconnect_analytics.DAL
             var result = await _dataService.ExecuteStoredProcedure<FileType>("[Configuration].[GetFileTypes]");
             _logger.LogInformation($"Loading file types", result);
             return result;
+        }
+
+        public async Task<FileType> GetFileType(FileTypes fileTypes)
+        {
+            var result = await _dataService.ExecuteStoredProcedure<FileType>("[Configuration].[GetFileTypes]");
+            return result.FirstOrDefault(ft => ft.FileTypeFilePrefix == fileTypes.ToString());
         }
 
         public async Task<SplunkClient> GetSplunkClientConfiguration()

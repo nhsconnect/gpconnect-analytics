@@ -1,14 +1,22 @@
 {
   "version": "2.0",
+  "functionTimeout": "12:00:00",
+  "Values": {
+    "GetDataFromApiByTriggerAsidLookupSchedule": "0 0 2 1-7 * MON",
+    "GetDataFromApiByTriggerSspTransSchedule": "0 0 3 * * *",
+    "GetDataFromApiByTriggerMeshTransSchedule": "0 0 4 * * *"
+  },
   "logging": {
-    "logLevel": {
-      "Default": "Information"
-    },
     "applicationInsights": {
       "samplingSettings": {
-        "isEnabled": true,
-        "excludedTypes": "Request"
+        "isEnabled": true
       }
+    },
+    "fileLoggingMode": "always",
+    "logLevel": {
+      "Default": "Information",
+      "Host.Controllers.Host": "Warning",
+      "Microsoft": "Warning"
     }
   }
 }
