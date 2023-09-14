@@ -1,20 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AzureFunctionsVersion>v3</AzureFunctionsVersion>
+    <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <RootNamespace>gpconnect_analytics.Functions</RootNamespace>
+    <DockerFastModeProjectMountDirectory>/home/site/wwwroot</DockerFastModeProjectMountDirectory>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.90" />
     <PackageReference Include="Dapper.FluentMap" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.10" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.0.12" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.4" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.12.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\gpconnect-analytics.DAL\gpconnect-analytics.DAL.csproj" />
-    <ProjectReference Include="..\gpconnect_analytics.Helpers\gpconnect_analytics.Helpers.csproj" />
+    <ProjectReference Include="..\gpconnect-analytics.Helpers\gpconnect-analytics.Helpers.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

@@ -3,6 +3,7 @@
     public enum FileTypes
     {
         asidlookup,
-        ssptrans
+        ssptrans,
+        meshtrans
     }
 }

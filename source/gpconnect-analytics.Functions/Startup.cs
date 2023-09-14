@@ -14,17 +14,18 @@ namespace gpconnect_analytics.Functions
         public override void Configure(IFunctionsHostBuilder builder)
         {
             MappingExtensions.ConfigureMappingServices();
-            builder.Services.AddScoped<IDataService, DataService>();
             builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
             builder.Services.AddScoped<IBlobService, BlobService>();
             builder.Services.AddScoped<IImportService, ImportService>();
             builder.Services.AddScoped<ISplunkService, SplunkService>();
+            builder.Services.AddScoped<IDataService, DataService>();
+            builder.Services.AddScoped<IBatchService, BatchService>();
+            builder.Services.AddScoped<ILoggingService, LoggingService>();
 
             var configuration = builder.GetContext().Configuration;
             builder.Services.AddLogging(loggingBuilder => LoggingExtensions.ConfigureLoggingServices(loggingBuilder, configuration));
             builder.Services.AddHttpClient("SplunkApiClient", options => Configuration.Infrastructure.HttpClient.HttpClientExtensions.ConfigureHttpClient(options))
                 .ConfigurePrimaryHttpMessageHandler(() => Configuration.Infrastructure.HttpClient.HttpClientExtensions.CreateHttpMessageHandler());
-            builder.Services.AddSmtpClientServices(configuration);    
         }        
     }
 }

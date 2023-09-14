@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-analytics.DAL", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-analytics.DTO", "gpconnect-analytics.DTO\gpconnect-analytics.DTO.csproj", "{18DE5071-433E-49D2-B168-136730EDB158}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect_analytics.Helpers", "gpconnect_analytics.Helpers\gpconnect_analytics.Helpers.csproj", "{D8523638-EE9F-4551-8F22-7FD91BD327FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-analytics.Helpers", "gpconnect-analytics.Helpers\gpconnect-analytics.Helpers.csproj", "{D8523638-EE9F-4551-8F22-7FD91BD327FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

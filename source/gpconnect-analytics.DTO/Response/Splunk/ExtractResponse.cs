@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using gpconnect_analytics.DTO.Request;
+using System.IO;
 using System.Net.Http;
 
 namespace gpconnect_analytics.DTO.Response.Splunk
@@ -9,5 +10,6 @@ namespace gpconnect_analytics.DTO.Response.Splunk
         public Stream ExtractResponseStream { get; set; }
         public Extract ExtractRequestDetails { get; set; }
         public string FilePath { get; set; }
+        public UriRequest UriRequest { get; set; }
     }
 }

@@ -1,5 +1,5 @@
-if (object_id('Import.WriteLog') is not null)
-	drop procedure Import.WriteLog;
+if (object_id('Logging.WriteLog') is not null)
+	drop procedure Logging.WriteLog;
 
 go
 

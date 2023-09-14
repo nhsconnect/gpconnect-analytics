@@ -8,3 +8,4 @@ database/flyway-7.0.0/
 serviceDependencies.json
 serviceDependencies.local.json
 *.arm.json
+/source/gpconnect-analytics.Functions/Properties/PublishProfiles/GPConnectAnalytics - Zip Deploy.pubxml

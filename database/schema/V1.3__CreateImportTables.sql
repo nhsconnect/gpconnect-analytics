@@ -57,3 +57,16 @@ create table Import.SspTransactionStaging
 	responseErrorMessage varchar(1000) null,
 	method varchar(1000) null
 );
+
+CREATE TABLE [Import].[MeshTransactionStaging]
+(
+	[_time] [varchar](1000) NULL,
+	[sender] [varchar](1000) NULL,
+	[senderOdsCode] [varchar](1000) NULL,
+	[senderName] [varchar](1000) NULL,
+	[recipient] [varchar](1000) NULL,
+	[recipientOdsCode] [varchar](1000) NULL,
+	[recipientName] [varchar](1000) NULL,
+	[workflow] [varchar](1000) NULL,
+	[fileSize] [varchar](1000) NULL
+);

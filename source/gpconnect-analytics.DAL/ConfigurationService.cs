@@ -1,5 +1,6 @@
 ﻿using gpconnect_analytics.DAL.Interfaces;
 using gpconnect_analytics.DTO.Response.Configuration;
+using gpconnect_analytics.Helpers;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,13 +26,6 @@ namespace gpconnect_analytics.DAL
             return result.FirstOrDefault();
         }
 
-        public async Task<Email> GetEmailConfiguration()
-        {
-            var result = await _dataService.ExecuteStoredProcedure<Email>("[Configuration].[GetEmailConfiguration]");
-            _logger.LogInformation($"Loading email configuration", result.FirstOrDefault());
-            return result.FirstOrDefault();
-        }
-
         public async Task<FilePathConstants> GetFilePathConstants()
         {
             var result = await _dataService.ExecuteStoredProcedure<FilePathConstants>("[Configuration].[GetFilePathConstants]");
@@ -46,6 +40,12 @@ namespace gpconnect_analytics.DAL
             return result;
         }
 
+        public async Task<FileType> GetFileType(FileTypes fileTypes)
+        {
+            var result = await _dataService.ExecuteStoredProcedure<FileType>("[Configuration].[GetFileTypes]");
+            return result.FirstOrDefault(ft => ft.FileTypeFilePrefix == fileTypes.ToString());
+        }
+
         public async Task<SplunkClient> GetSplunkClientConfiguration()
         {
             var result = await _dataService.ExecuteStoredProcedure<SplunkClient>("[Configuration].[GetSplunkClientConfiguration]");
@@ -53,11 +53,11 @@ namespace gpconnect_analytics.DAL
             return result.FirstOrDefault();
         }
 
-        public async Task<List<SplunkInstance>> GetSplunkInstances()
+        public async Task<SplunkInstance> GetSplunkInstance(Helpers.SplunkInstances splunkInstance)
         {
             var result = await _dataService.ExecuteStoredProcedure<SplunkInstance>("[Configuration].[GetSplunkInstances]");
-            _logger.LogInformation($"Loading splunk instances", result);
-            return result;
+            _logger.LogInformation($"Loading splunk instance", result);
+            return result.FirstOrDefault(x => x.Source == splunkInstance.ToString());
         }
     }
 }

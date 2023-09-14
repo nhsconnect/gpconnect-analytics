@@ -73,7 +73,8 @@ create table Configuration.FileType
     SplunkQuery varchar(8000) not null,
     QueryFromBaseDate datetime2 not null,
     QueryPeriodHours integer not null,
-    StagingTableName varchar(200) not null
+    StagingTableName varchar(200) not null,
+    Enabled bit not null,
 
     constraint PK_Configuration_FileType_FileTypeId primary key clustered (FileTypeId),
     constraint UQ_Configuration_FileType_DirectoryName unique (DirectoryName),
@@ -89,26 +90,39 @@ insert into Configuration.FileType
     SplunkQuery,
     QueryFromBaseDate,
     QueryPeriodHours,
-    StagingTableName
+    StagingTableName,
+    Enabled
 )
 values
 (
     1,
     'asid-lookup-data',
     'asidlookup',
-    '| inputlookup asidLookup.csv',
+    '| inputlookup asidLookup.csv | table ASID, MName, NACS, OrgName, OrgType, PName, PostCode',
     convert(datetime2, '2020-01-01 00:00:00'),
     24 * 7,
-    'Import.AsidLookupStaging'
+    'Import.AsidLookupStaging',
+    1
 ),
 (
     2,
     'ssp-transactions',
     'ssptrans',
-    'search index=spine2vfmmonitor (logReference=SSP0001 OR logReference=SSP0015 OR logReference=SSP0016) earliest="{earliest}" latest="{latest}" | transaction internalID maxspan=1h keepevicted=true | table _time, SspTraceId, sspFrom, sspTo, interaction, responseCode, duration, responseSize, responseErrorMessage, method | eval _time=strftime(_time, "%Y-%m-%dT%H:%M:%S.%Q%z")',
+    'search index=spine2vfmmonitor (logReference=SSP0001 OR logReference=SSP0015 OR logReference=SSP0016) earliest="{earliest}" latest="{latest}" | transaction internalID maxspan=1h keepevicted=true | table _time, sspFrom, sspTo, SspTraceId, interaction, responseCode, duration, responseSize, responseErrorMessage, method | eval _time=strftime(_time, "%Y-%m-%dT%H:%M:%S.%Q%z") | sort 0 _time',
     convert(datetime2, '2020-01-01 00:00:00'),
     24,
-    'Import.SspTransactionStaging'
+    'Import.SspTransactionStaging',
+    1
+),
+(
+    3,
+    'mesh-transactions',
+    'meshtrans',
+    'search index=spine2vfmmonitor (logReference=MEX0027a) (workflow=GPFED_CONSULT*) earliest="{earliest}" latest="{latest}" | table _time sender senderOdsCode senderName recipient recipientOdsCode recipientName workflow fileSize | eval _time=strftime(_time, "%Y-%m-%dT%H:%M:%S.%Q%z") | sort 0 _time',
+    convert(datetime2, '2021-06-22 00:00:00'),
+    24,
+    'Import.MeshTransactionStaging',
+    1
 );
 
 create table Configuration.SplunkClient
@@ -145,7 +159,7 @@ values
     443,
     '***SET-BASE-URL***',
     '?QueryDateFrom={0}&QueryDateTo={1}',
-    30,
+    120,
     'cloud',
     '***SET-APITOKEN-VALUE***'
 );
@@ -193,7 +207,8 @@ create table Configuration.Email
     AuthenticationRequired bit not null,
     Username varchar(100) not null,
     Password varchar(100) not null,
-    DefaultSubject varchar(100) not null
+    DefaultSubject varchar(100) not null,
+    RecipientAddress varchar(100) not null,
 
     constraint PK_Configuration_Email_SingleRowLock primary key (SingleRowLock),
     constraint CK_Configuration_Email_SingleRowLock check (SingleRowLock = 1),
@@ -201,7 +216,8 @@ create table Configuration.Email
     constraint CK_Configuration_Email_Hostname check (len(trim(Hostname)) > 0),
     constraint CK_Configuration_Email_Port check (port > 0),
     constraint CK_Configuration_Email_Encryption check (len(trim(Encryption)) > 0),
-    constraint CK_Configuration_Email_DefaultSubject check (len(trim(DefaultSubject)) > 0)
+    constraint CK_Configuration_Email_DefaultSubject check (len(trim(DefaultSubject)) > 0),
+    constraint CK_Configuration_Email_RecipientAddress check (len(trim(RecipientAddress)) > 0)
 );
 
 
@@ -215,7 +231,8 @@ insert into Configuration.Email
     AuthenticationRequired, 
     Username, 
     Password, 
-    DefaultSubject
+    DefaultSubject,
+    RecipientAddress
 )
 values
 (
@@ -227,5 +244,6 @@ values
     1, 
     '', 
     '', 
-    'GP Connect Analytics'
+    'GP Connect Analytics',
+    'recipient@test.com'
 );

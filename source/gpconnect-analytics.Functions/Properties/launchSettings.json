@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "gpconnect-analytics.Functions": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 31291,
+      "useSSL": false
+    }
+  }
+}

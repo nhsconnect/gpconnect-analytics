@@ -57,7 +57,7 @@ namespace gpconnect_analytics.DAL
             }
         }
 
-        public async Task AddMessageToBlobQueue(int fileAddedCount, int fileTypeId, string blobName)
+        public async Task AddMessageToBlobQueue(int fileAddedCount, int fileTypeId, string blobName, bool overrideEntry = false)
         {
             try
             {
@@ -66,7 +66,8 @@ namespace gpconnect_analytics.DAL
                     var message = new DTO.Response.Queue.Message
                     {
                         FileTypeId = fileTypeId,
-                        BlobName = blobName
+                        BlobName = blobName,
+                        Override = overrideEntry
                     };
 
                     var messageText = JsonConvert.SerializeObject(message);

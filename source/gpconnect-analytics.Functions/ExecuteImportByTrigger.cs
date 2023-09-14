@@ -6,21 +6,18 @@ using System.Threading.Tasks;
 
 namespace gpconnect_analytics.Functions
 {
-    public class ExecuteImport
+    public class ExecuteImportByTrigger
     {
-        private readonly ILogger<ExecuteImport> _logger;
         private readonly IImportService _importService;
 
-        public ExecuteImport(ILogger<ExecuteImport> logger, IImportService importService)
+        public ExecuteImportByTrigger(IImportService importService)
         {
-            _logger = logger;
             _importService = importService;
         }
 
-        [FunctionName("ExecuteImport")]
+        [FunctionName("ExecuteImportByTrigger")]
         public async Task Run([QueueTrigger("%QueueName%")] Message queueItem, ILogger log)
         {
-            _logger.LogInformation("Executing queue trigger", queueItem);
             await _importService.InstallData(queueItem);
         }
     }

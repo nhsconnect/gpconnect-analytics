@@ -11,5 +11,6 @@ namespace gpconnect_analytics.DTO.Response.Configuration
         public bool UsesQueryDates { get; set; }
         public DateTime? QueryFromBaseDate { get; set; }
         public int QueryPeriodHours { get; set; }
+        public bool Enabled { get; set; }
     }
 }

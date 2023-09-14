@@ -1,31 +1,24 @@
-if (object_id('Data.SspTransactionView') is not null)
-    drop view Data.SspTransactionView;
+IF (object_id('Data.SspTransactionView') IS NOT NULL)
+    DROP VIEW Data.SspTransactionView;
+GO
 
-go
-
-create view Data.SspTransactionView
-as
-
-    select 
+CREATE VIEW [Data].[SspTransactionView]
+AS
+    SELECT
         s.SspTransactionId,
-        s.Time,
-        s.FromAsid,
-        aFrom.OdsCode as FromOdsCode,
-        aFrom.OrgName as FromOrgName,
-        aFrom.SupplierName as FromSupplierName,
-        s.ToAsid,
-        aTo.OdsCode as ToOdsCode,
-        aTo.OrgName as ToOrgName,
-        aTo.SupplierName as ToSupplierName,
-        s.SspTraceId,
-        i.InteractionName,
-        s.ResponseCode,
+	CONVERT(DATE, FORMAT(TRY_CONVERT(DATE, s.Time), 'dd MMMM yyyy')) AS 'Date',
+	CONVERT(TIME(0), FORMAT(s.Time, 'HH:mm:ss')) AS 'Time',
+        TRY_CONVERT(BIGINT, s.FromAsid) AS FromAsid,
+        TRY_CONVERT(BIGINT, s.ToAsid) AS ToAsid,
+	s.SspTraceId,
+	s.InteractionId,
+        TRY_CONVERT(INTEGER, s.ResponseCode) AS 'ResponseCode',
         s.Duration,
         s.ResponseSize,
         s.ResponseErrorMessage,
-        s.Method
-    from Data.SspTransaction s
-    inner join Data.Interaction i on s.InteractionId = i.InteractionId
-    inner join Data.AsidLookup aFrom on s.FromAsid = aFrom.Asid
-    inner join Data.AsidLookup aTo on s.ToAsid = aTo.Asid;
+        s.Method		
+    FROM
+	Data.SspTransaction s;
+GO
+
 
