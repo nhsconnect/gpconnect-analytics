@@ -1,34 +1,29 @@
-﻿using Dapper;
-using gpconnect_analytics.DAL.Interfaces;
+﻿using gpconnect_analytics.DAL.Interfaces;
 using gpconnect_analytics.DTO.Request;
 using gpconnect_analytics.DTO.Response.Configuration;
 using gpconnect_analytics.DTO.Response.Splunk;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace gpconnect_analytics.DAL
 {
     public class SplunkService : ISplunkService
     {
         private readonly IConfigurationService _configurationService;
-        private readonly IDataService _dataService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<SplunkService> _logger;
         private SplunkClient _splunkClient;
         private FilePathConstants _filePathConstants;
         private Extract _extract;
 
-        public SplunkService(IConfigurationService configurationService, IDataService dataService, IHttpClientFactory httpClientFactory, ILogger<SplunkService> logger)
+        public SplunkService(IConfigurationService configurationService, IHttpClientFactory httpClientFactory, ILogger<SplunkService> logger)
         {
             _configurationService = configurationService;
-            _dataService = dataService;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
             _extract = new Extract();
@@ -140,26 +135,6 @@ namespace gpconnect_analytics.DAL
             }
             filePathString.Append(_filePathConstants.FileExtension);
             return filePathString.ToString();
-        }
-
-        private async Task GetNextExtractDetails(int fileTypeId)
-        {
-            var procedureName = "ApiReader.DetermineNextExtract";
-            var parameters = new DynamicParameters();
-            parameters.Add("@FileTypeId", fileTypeId);
-            parameters.Add("@ExtractRequired", dbType: DbType.Boolean, direction: ParameterDirection.Output);
-            parameters.Add("@QueryFromDate", dbType: DbType.DateTime2, direction: ParameterDirection.Output);
-            parameters.Add("@QueryToDate", dbType: DbType.DateTime2, direction: ParameterDirection.Output);
-
-            _logger.LogInformation("Determining next extract details", parameters);
-            var result = await _dataService.ExecuteStoredProcedureWithOutputParameters(procedureName, parameters);
-
-            if (result.Get<bool>("@ExtractRequired"))
-            {
-                _extract.ExtractRequired = result.Get<bool>("@ExtractRequired");
-                _extract.QueryFromDate = result.Get<DateTime>("@QueryFromDate");
-                _extract.QueryToDate = result.Get<DateTime>("@QueryToDate");
-            }
         }
 
         private (bool, DateTime) HasApiTokenExpired(string apiToken)
