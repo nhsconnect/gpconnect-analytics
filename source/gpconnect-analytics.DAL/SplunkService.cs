@@ -94,7 +94,7 @@ namespace gpconnect_analytics.DAL
                 }
                 else
                 {
-                    extractResponseMessage.ExtractResponseMessage.ReasonPhrase = $"The authentication has expired because it is valid up to {apiTokenExpiry.Item2}";
+                    extractResponseMessage.ExtractResponseMessage.ReasonPhrase = $"The authentication token has expired because it is valid up to {apiTokenExpiry.Item2}";
                     extractResponseMessage.ExtractResponseMessage.StatusCode = System.Net.HttpStatusCode.Unauthorized;
                 }
             }
