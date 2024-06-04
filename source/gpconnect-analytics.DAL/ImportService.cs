@@ -30,11 +30,12 @@ namespace gpconnect_analytics.DAL
 
         public async Task<IActionResult> AddDownloadedFileManually(HttpRequest req)
         {
-            var fileTypes = (FileTypes?)Enum.Parse(typeof(FileTypes), req.Query["FileType"].ToString());
-            if (fileTypes != null)
+            var filePath = req.Query["FilePath"].ToString();
+            var fileTypeFromPath = filePath.GetFileType<FileTypes>();
+
+            if (fileTypeFromPath != null)
             {
-                var fileType = await _configurationService.GetFileType((FileTypes)fileTypes);
-                var filePath = req.Query["FilePath"].ToString();
+                var fileType = await _configurationService.GetFileType((FileTypes)fileTypeFromPath);
                 await AddFileMessage(fileType, new ExtractResponse() { FilePath = filePath });
                 return new OkObjectResult($"Import of {filePath} complete");
             }
