@@ -1,29 +1,40 @@
-﻿using Dapper;
-using gpconnect_analytics.DAL;
-using gpconnect_analytics.DTO.Response.Configuration;
-using gpconnect_analytics.Helpers;
+﻿using System.Data;
+using Core.DTOs.Response.Configuration;
+using Core.Helpers;
+using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Extensions.Logging;
 using NLog.Layouts;
 using NLog.Targets;
-using NLog.Web;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
 
-namespace gpconnect_analytics.Configuration.Infrastructure.Logging
+
+namespace function_app.Configuration.Infrastructure.Logging
 {
     public static class LoggingExtensions
     {
-        public static ILoggingBuilder ConfigureLoggingServices(ILoggingBuilder loggingBuilder, IConfiguration configuration)
+        public static ILoggingBuilder ConfigureLoggingServices(ILoggingBuilder loggingBuilder,
+            IConfiguration configuration)
         {
+            // Set up NLog
+            LogManager.Setup()
+                .LoadConfigurationFromFile("nlog.config");
+
+
+            // Add NLog to the logging pipeline
+            loggingBuilder.AddNLog();
+
+            // Add custom targets manually (optional)
             var nLogConfiguration = new NLog.Config.LoggingConfiguration();
 
             var consoleTarget = AddConsoleTarget();
             var databaseTarget = AddDatabaseTarget(configuration);
             var mailTarget = AddMailTarget(configuration);
 
-            nLogConfiguration.Variables.Add("applicationVersion", ApplicationHelper.ApplicationVersion.GetAssemblyVersion());
+            nLogConfiguration.Variables.Add("applicationVersion",
+                ApplicationHelper.ApplicationVersion.GetAssemblyVersion());
 
             nLogConfiguration.AddRule(NLog.LogLevel.Trace, NLog.LogLevel.Fatal, consoleTarget);
             nLogConfiguration.AddRule(NLog.LogLevel.Trace, NLog.LogLevel.Fatal, databaseTarget);
@@ -33,32 +44,25 @@ namespace gpconnect_analytics.Configuration.Infrastructure.Logging
             nLogConfiguration.AddTarget(databaseTarget);
             nLogConfiguration.AddTarget(mailTarget);
 
-            var nLogOptions = new NLogAspNetCoreOptions
-            {
-                RegisterHttpContextAccessor = true,
-                IgnoreEmptyEventId = true,
-                IncludeScopes = true,
-                ShutdownOnDispose = true
-            };
-
-            var logFactory = NLogBuilder.ConfigureNLog(nLogConfiguration);
-            logFactory.AutoShutdown = false;
-
-            var nLogConfig = logFactory.Configuration;
-            loggingBuilder.AddNLog(nLogConfig, nLogOptions);
-
             return loggingBuilder;
         }
 
         private static MailTarget AddMailTarget(IConfiguration configuration)
         {
             var emailConfiguration = GetEmailConfiguration(configuration);
+            if (emailConfiguration == null)
+            {
+                throw new InvalidOperationException("EmailConfiguration cannot be null");
+            }
+
             var mailTarget = new MailTarget
             {
                 Name = "Mail",
                 Html = false,
                 SmtpServer = emailConfiguration.Hostname,
-                SmtpAuthentication = emailConfiguration.AuthenticationRequired ? SmtpAuthenticationMode.Basic : SmtpAuthenticationMode.None,
+                SmtpAuthentication = emailConfiguration is { AuthenticationRequired: true }
+                    ? SmtpAuthenticationMode.Basic
+                    : SmtpAuthenticationMode.None,
                 SmtpUserName = emailConfiguration.Username,
                 SmtpPort = emailConfiguration.Port,
                 SmtpPassword = emailConfiguration.Password,
@@ -82,22 +86,27 @@ namespace gpconnect_analytics.Configuration.Infrastructure.Logging
             {
                 Attributes =
                 {
-                    new JsonAttribute("type", "${exception:format=:innerFormat=Type:MaxInnerExceptionLevel=1:InnerExceptionSeparator=}"),
-                    new JsonAttribute("message", "${exception:format=:innerFormat=Message:MaxInnerExceptionLevel=1:InnerExceptionSeparator=}"),
-                    new JsonAttribute("stacktrace", "${exception:format=:innerFormat=StackTrace:MaxInnerExceptionLevel=1:InnerExceptionSeparator=}")
+                    new JsonAttribute("type",
+                        "${exception:format=:innerFormat=Type:MaxInnerExceptionLevel=1:InnerExceptionSeparator=}"),
+                    new JsonAttribute("message",
+                        "${exception:format=:innerFormat=Message:MaxInnerExceptionLevel=1:InnerExceptionSeparator=}"),
+                    new JsonAttribute("stacktrace",
+                        "${exception:format=:innerFormat=StackTrace:MaxInnerExceptionLevel=1:InnerExceptionSeparator=}")
                 },
                 RenderEmptyObject = false
             }, false));
             return exceptionLayout;
         }
 
-        private static Email GetEmailConfiguration(IConfiguration configuration)
+        private static Email? GetEmailConfiguration(IConfiguration configuration)
         {
-            using (var sqlConnection = new SqlConnection(configuration.GetConnectionString(ConnectionStrings.GpConnectAnalytics)))
-            {
-                var result = sqlConnection.Query<Email>("[Configuration].[GetEmailConfiguration]", commandType: CommandType.StoredProcedure);
-                return result.FirstOrDefault();
-            }
+            using var sqlConnection =
+                new SqlConnection(configuration.GetConnectionString(ConnectionStrings.GpConnectAnalytics));
+
+            IEnumerable<Email?> result = sqlConnection.Query<Email>("[Configuration].[GetEmailConfiguration]",
+                commandType: CommandType.StoredProcedure);
+
+            return result.FirstOrDefault();
         }
 
         private static DatabaseTarget AddDatabaseTarget(IConfiguration configuration)

@@ -1,16 +1,13 @@
-﻿using Dapper.FluentMap;
-using gpconnect_analytics.DAL.Mapping;
+﻿using Core.Mapping;
+using Dapper.FluentMap;
 
-namespace gpconnect_analytics.Configuration.Infrastructure
+namespace function_app.Configuration.Infrastructure.Mapping
 {
     public static class MappingExtensions
     {
         public static void ConfigureMappingServices()
         {
-            FluentMapper.Initialize(config =>
-            {
-                config.AddMap(new SplunkInstanceMap());
-            });
+            FluentMapper.Initialize(config => { config.AddMap(new SplunkInstanceMap()); });
         }
     }
 }
