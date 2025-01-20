@@ -7,12 +7,12 @@ using Microsoft.Extensions.Logging;
 
 namespace function_app.Functions
 {
-    public class GetDataFromApiByDateRange(IBatchService batchService)
+    public class GetDataFromApiByDateRange(IBatchService batchService, ILogger log)
     {
         [Function("GetDataFromApiByDateRangeSspTrans")]
         public async Task<HttpResponseData> GetDataFromSspTransByDateRange(
             [HttpTrigger(AuthorizationLevel.Function, "GET", Route = null)]
-            HttpRequestData req, ILogger log)
+            HttpRequestData req)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace function_app.Functions
         [Function("GetDataFromApiByDateRangeMeshTrans")]
         public async Task<HttpResponseData> GetDataFromMeshTransByDateRange(
             [HttpTrigger(AuthorizationLevel.Function, "GET", Route = null)]
-            HttpRequestData req, ILogger log)
+            HttpRequestData req)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace function_app.Functions
         [Function("GetDataFromApiByDateRangeAsidLookup")]
         public async Task<HttpResponseData> GetDataFromAsidLookupByDateRange(
             [HttpTrigger(AuthorizationLevel.Function, "GET", Route = null)]
-            HttpRequestData req, ILogger log)
+            HttpRequestData req)
         {
             try
             {

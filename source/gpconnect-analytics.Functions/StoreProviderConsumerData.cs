@@ -8,25 +8,16 @@ using Microsoft.Extensions.Logging;
 
 namespace function_app.Functions
 {
-    public class StoreProviderConsumerData(IHierarchyProviderConsumerRepo repository)
+    public class StoreProviderConsumerData(
+        IHierarchyProviderConsumerRepo repository,
+        ILogger<StoreProviderConsumerData> logger)
     {
-        private readonly IHierarchyProviderConsumerRepo _repository;
-        private readonly ILogger<StoreProviderConsumerData> _logger;
-
-        public StoreProviderConsumerData(
-            IHierarchyProviderConsumerRepo repository,
-            ILogger<StoreProviderConsumerData> logger) : this(repository)
-        {
-            _repository = repository;
-            _logger = logger;
-        }
-
         [Function("StoreProviderConsumerData")]
         public async Task<HttpResponseData> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "StoreProviderConsumerData")]
             HttpRequestData req)
         {
-            _logger.LogInformation("Processing HTTP request.");
+            logger.LogInformation("Processing HTTP request.");
 
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
@@ -46,8 +37,7 @@ namespace function_app.Functions
             }
             catch (JsonException ex)
             {
-                _logger.LogError($"Failed to deserialize request body: {ex.Message}");
-
+                logger.LogError($"Failed to deserialize request body: {ex.Message}");
                 var response = req.CreateResponse(HttpStatusCode.BadRequest);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
                 await response.WriteStringAsync("Invalid json input");
@@ -57,7 +47,7 @@ namespace function_app.Functions
 
             try
             {
-                _logger.LogInformation($"Attempting to save {records.Count} items into databases");
+                logger.LogInformation($"Attempting to save {records.Count} items into databases");
                 await repository.InsertHierarchyProviderConsumers(records);
 
                 var response = req.CreateResponse(HttpStatusCode.OK);
@@ -67,7 +57,7 @@ namespace function_app.Functions
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to save data to databases: {ex.Message}");
+                logger.LogError($"Failed to save data to databases: {ex.Message}");
 
                 var response = req.CreateResponse(HttpStatusCode.BadRequest);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");

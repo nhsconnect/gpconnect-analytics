@@ -6,12 +6,12 @@ using Microsoft.Extensions.Logging;
 
 namespace function_app.Functions
 {
-    public class GetDataFromApiManual(IImportService importService)
+    public class GetDataFromApiManual(IImportService importService, ILogger log)
     {
         [Function("GetDataFromApiManual")]
         public async Task<HttpResponseData> AddDownloadedFile(
             [HttpTrigger(AuthorizationLevel.Function, "GET", Route = null)]
-            HttpRequestData req, ILogger log)
+            HttpRequestData req)
         {
             var response = req.CreateResponse();
             response.Headers.Add("Content-Type", "application/text");

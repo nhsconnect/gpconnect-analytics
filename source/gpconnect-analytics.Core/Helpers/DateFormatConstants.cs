@@ -1,6 +1,6 @@
 ﻿namespace Core.Helpers
 {
-    public class DateFormatConstants
+    public static class DateFormatConstants
     {
         public const string FilePathQueryDate = "yyyyMMdd";
         public const string FilePathQueryHour = "hhmmss";

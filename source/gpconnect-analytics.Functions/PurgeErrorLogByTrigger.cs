@@ -9,7 +9,7 @@ namespace function_app.Functions
         [Function("PurgeErrorLogByTrigger")]
         public async Task PurgeErrorLog(
             [TimerTrigger("%PurgeErrorLogByTriggerSchedule%", RunOnStartup = false)]
-            TimerInfo myTimer, ILogger log)
+            TimerInfo myTimer)
         {
             await loggingService.PurgeErrorLog();
         }

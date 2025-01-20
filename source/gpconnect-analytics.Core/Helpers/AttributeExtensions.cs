@@ -1,20 +1,27 @@
+using System.Reflection;
+
 namespace Core.Helpers
 {
     public static class AttributeExtensions
     {
-        public static FileTypes? GetFileType<FilePath>(this string filePath)
+        public static FileTypes? GetFileType<TFilePath>(this string filePath)
         {
-            return GetValueFromPath<FilePath>(filePath);
+            return GetValueFromPath<TFilePath>(filePath);
         }
 
-        private static FileTypes? GetValueFromPath<FilePath>(string filePath)
+        private static FileTypes? GetValueFromPath<T>(string filePath)
         {
-            var fileType = typeof(FilePath).GetFields()
-                .Where(x =>
-                    Attribute.GetCustomAttribute(x, typeof(FilePathAttribute)) is FilePathAttribute filePathAttribute &&
-                    filePath.Contains(filePathAttribute?.FilePath))
-                .FirstOrDefault();
-            return fileType != null ? (FileTypes)fileType.GetValue(filePath) : (FileTypes?)null;
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return null;
+            }
+
+            var fileType = typeof(T).GetFields()
+                .FirstOrDefault(field =>
+                    field.GetCustomAttribute<FilePathAttribute>() is { } attribute &&
+                    filePath.Contains(attribute.FilePath));
+
+            return fileType?.GetValue(null) as FileTypes?;
         }
     }
 }

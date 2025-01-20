@@ -8,12 +8,15 @@ namespace Core.Helpers
         {
             public static string GetAssemblyVersion()
             {
-                string buildTag = System.Environment.GetEnvironmentVariable("BUILD_TAG");
+                return GetAssemblyVersionInternal(Assembly.GetCallingAssembly);
+            }
 
-                if (string.IsNullOrWhiteSpace(buildTag))
-                    return Assembly.GetCallingAssembly()?.GetName().FullName;
+            // Internal method to allow dependency injection for testing
+            internal static string GetAssemblyVersionInternal(Func<Assembly> getAssembly)
+            {
+                var buildTag = System.Environment.GetEnvironmentVariable("BUILD_TAG");
 
-                return buildTag;
+                return string.IsNullOrWhiteSpace(buildTag) ? getAssembly()?.GetName().FullName : buildTag;
             }
         }
     }
