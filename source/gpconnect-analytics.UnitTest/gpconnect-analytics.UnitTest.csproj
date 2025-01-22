@@ -16,7 +16,7 @@
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="FakeItEasy" Version="8.3.0" />
-        <PackageReference Include="FluentAssertions" Version="8.0.0" />
+        <PackageReference Include="FluentAssertions" Version="[7.1.0]" />
         <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
         <PackageReference Include="NUnit" Version="3.14.0" />

@@ -1,0 +1,26 @@
+CREATE SCHEMA DATA;
+GO
+CREATE TABLE DATA.HierarchyProviderConsumers;
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Data].[HierarchyProviderConsumers](
+	[OdsCode] [nvarchar](450) NOT NULL,
+	[PracticeName] [nvarchar](max) NULL,
+	[RegisteredPatientCount] [int] NOT NULL,
+	[RegionCode] [nvarchar](max) NULL,
+	[RegionName] [nvarchar](max) NULL,
+	[Icb22Name] [nvarchar](max) NULL,
+	[PcnName] [nvarchar](max) NULL,
+	[Appointments13000] [int] NOT NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+ALTER TABLE [Data].[HierarchyProviderConsumers] ADD  CONSTRAINT [PK_HierarchyProviderConsumers] PRIMARY KEY CLUSTERED 
+(
+	[OdsCode] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
