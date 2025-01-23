@@ -59,15 +59,17 @@ namespace gpconnect_analytics.IntegrationTests.RepositoryIntegration
             // Assert
             await using var connection = new SqlConnection(_container.GetConnectionString());
             await connection.OpenAsync();
-            const string countQuery = "SELECT COUNT(*) FROM [Data].[HierarchyProviderConsumers]";
-            var count = await connection.ExecuteAsync(countQuery);
 
+            // Verify record count
+            const string countQuery = "SELECT COUNT(*) FROM [Data].[HierarchyProviderConsumers]";
+            var count = await connection.QuerySingleAsync<int>(countQuery);
             count.Should().Be(2);
 
+            // Verify specific record
             const string selectQuery = "SELECT * FROM [Data].[HierarchyProviderConsumers] WHERE OdsCode = @OdsCode";
-            var result =
-                await connection.QuerySingleAsync<OrganisationHierarchyProvider>(selectQuery,
-                    new { OdsCode = "ABC123" });
+
+            var result = await connection.QuerySingleAsync<OrganisationHierarchyProvider>(selectQuery,
+                new { OdsCode = "ABC123" });
 
             result.OdsCode.Should().Be("ABC123");
             result.PracticeName.Should().Be("Test Practice 1");
@@ -93,24 +95,43 @@ namespace gpconnect_analytics.IntegrationTests.RepositoryIntegration
             _repo = new HierarchyProviderConsumerRepo(fakeCoreConfigurationService);
 
             // create table and schema for test
-            await CreateSchemaAndTable();
+            // await CreateSchemaAndTable();
+
+            await using var sqlConnection = new SqlConnection(_container.GetConnectionString());
+            await sqlConnection.OpenAsync();
+            await sqlConnection.ExecuteAsync("CREATE SCHEMA DATA");
+            await sqlConnection.ExecuteAsync("""
+                                             SET ANSI_NULLS ON
+                                             BEGIN
+                                             SET QUOTED_IDENTIFIER ON
+                                             END
+                                             BEGIN
+                                             CREATE TABLE [Data].[HierarchyProviderConsumers](
+                                             	[OdsCode] [nvarchar](450) NOT NULL,
+                                             	[PracticeName] [nvarchar](max) NULL,
+                                             	[RegisteredPatientCount] [int] NOT NULL,
+                                             	[RegionCode] [nvarchar](max) NULL,
+                                             	[RegionName] [nvarchar](max) NULL,
+                                             	[Icb22Name] [nvarchar](max) NULL,
+                                             	[PcnName] [nvarchar](max) NULL,
+                                             	[Appointments13000] [int] NOT NULL
+                                             ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+                                             END
+                                             BEGIN
+                                             SET ANSI_PADDING ON
+                                             END
+                                             BEGIN
+                                             ALTER TABLE [Data].[HierarchyProviderConsumers] ADD  CONSTRAINT [PK_HierarchyProviderConsumers] PRIMARY KEY CLUSTERED 
+                                             (
+                                             	[OdsCode] ASC
+                                             )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+                                             END
+
+                                             """);
+
+            await sqlConnection.CloseAsync();
         }
 
         public async Task DisposeAsync() => await _container.DisposeAsync();
-
-        private async Task CreateSchemaAndTable()
-        {
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "AppendixFiles", "SeedingHierarchy.txt");
-
-            if (!File.Exists(filePath))
-            {
-                throw new FileNotFoundException($"File not found: {filePath}");
-            }
-
-            var fileContent = await File.ReadAllTextAsync(filePath);
-            var connection = new SqlConnection(_container.GetConnectionString());
-            await connection.OpenAsync();
-            await connection.ExecuteAsync(fileContent);
-        }
     }
 }

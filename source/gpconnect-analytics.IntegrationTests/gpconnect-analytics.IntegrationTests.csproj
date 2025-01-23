@@ -31,7 +31,14 @@
 
     <ItemGroup>
       <None Remove="AppendixFiles\SeedHierarchy.txt" />
-      <Content Include="AppendixFiles\SeedHierarchy.txt">
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="AppendixFiles\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="RepositoryIntegration\SeedHierarchy.sql">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
