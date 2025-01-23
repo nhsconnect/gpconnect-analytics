@@ -12,27 +12,28 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.3">
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-          <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="FakeItEasy" Version="8.3.0" />
-        <PackageReference Include="FluentAssertions" Version="[7.1.0]" />
-        <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.1" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-        <PackageReference Include="NUnit" Version="3.14.0" />
-        <PackageReference Include="NUnit.Analyzers" Version="3.9.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-        <PackageReference Include="System.Data.SQLite" Version="1.0.119" />
-        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
+        <PackageReference Include="FakeItEasy" Version="8.3.0"/>
+        <PackageReference Include="FluentAssertions" Version="[7.1.0]"/>
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2"/>
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.1.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
+        <PackageReference Include="System.Data.SQLite" Version="1.0.119"/>
+        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119"/>
+        <PackageReference Include="xunit" Version="2.9.3"/>
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.0.1">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
+    
     <ItemGroup>
-        <Using Include="NUnit.Framework" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\gpconnect-analytics.Core\Core.csproj" />
-      <ProjectReference Include="..\gpconnect-analytics.Functions\gpconnect-analytics.Functions.csproj" />
+        <ProjectReference Include="..\gpconnect-analytics.Core\Core.csproj"/>
+        <ProjectReference Include="..\gpconnect-analytics.Functions\gpconnect-analytics.Functions.csproj"/>
     </ItemGroup>
 
 </Project>

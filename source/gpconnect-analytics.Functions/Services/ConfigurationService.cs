@@ -14,7 +14,7 @@ namespace function_app.Services
         public async Task<BlobStorage> GetBlobStorageConfiguration()
         {
             var result =
-                await dataService.ExecuteStoredProcedure<BlobStorage>("[Configuration].[GetBlobStorageConfiguration]");
+                await dataService.ExecuteQueryStoredProcedure<BlobStorage>("[Configuration].[GetBlobStorageConfiguration]");
             logger.LogInformation("Loading blob storage configuration", result.FirstOrDefault());
             return result.FirstOrDefault();
         }
@@ -22,28 +22,28 @@ namespace function_app.Services
         public async Task<FilePathConstants> GetFilePathConstants()
         {
             var result =
-                await dataService.ExecuteStoredProcedure<FilePathConstants>("[Configuration].[GetFilePathConstants]");
+                await dataService.ExecuteQueryStoredProcedure<FilePathConstants>("[Configuration].[GetFilePathConstants]");
             logger.LogInformation("Loading file path constants", result.FirstOrDefault());
             return result.FirstOrDefault();
         }
 
         public async Task<List<FileType>> GetFileTypes()
         {
-            var result = await dataService.ExecuteStoredProcedure<FileType>("[Configuration].[GetFileTypes]");
+            var result = await dataService.ExecuteQueryStoredProcedure<FileType>("[Configuration].[GetFileTypes]");
             logger.LogInformation("Loading file types", result);
             return result;
         }
 
         public async Task<FileType> GetFileType(FileTypes fileTypes)
         {
-            var result = await dataService.ExecuteStoredProcedure<FileType>("[Configuration].[GetFileTypes]");
+            var result = await dataService.ExecuteQueryStoredProcedure<FileType>("[Configuration].[GetFileTypes]");
             return result.FirstOrDefault(ft => ft.FileTypeFilePrefix == fileTypes.ToString());
         }
 
         public async Task<SplunkClient> GetSplunkClientConfiguration()
         {
             var result =
-                await dataService.ExecuteStoredProcedure<SplunkClient>(
+                await dataService.ExecuteQueryStoredProcedure<SplunkClient>(
                     "[Configuration].[GetSplunkClientConfiguration]");
             logger.LogInformation("Loading splunk client configuration", result.FirstOrDefault());
             return result.FirstOrDefault();
@@ -52,7 +52,7 @@ namespace function_app.Services
         public async Task<SplunkInstance> GetSplunkInstance(SplunkInstances splunkInstance)
         {
             var result =
-                await dataService.ExecuteStoredProcedure<SplunkInstance>("[Configuration].[GetSplunkInstances]");
+                await dataService.ExecuteQueryStoredProcedure<SplunkInstance>("[Configuration].[GetSplunkInstances]");
             logger.LogInformation("Loading splunk instance", result);
             return result.FirstOrDefault(x => x.Source == splunkInstance.ToString());
         }

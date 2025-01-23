@@ -1,11 +1,12 @@
 using Core.Helpers;
+using FluentAssertions;
+using Xunit;
 
 namespace gpconnect_analytics.Test
 {
-    [TestFixture]
     public class AttributeExtensionsTests
     {
-        [Test]
+        [Fact]
         public void GetFileType_ShouldReturnDocument_ForDocumentPath()
         {
             // Arrange
@@ -15,10 +16,10 @@ namespace gpconnect_analytics.Test
             var fileType = filePath.GetFileType<FileTypes>();
 
             // Assert
-            Assert.That(fileType, Is.EqualTo(FileTypes.asidlookup));
+            fileType.Should().Be(FileTypes.asidlookup);
         }
 
-        [Test]
+        [Fact]
         public void GetFileType_ShouldReturnImage_ForImagePath()
         {
             // Arrange
@@ -28,10 +29,10 @@ namespace gpconnect_analytics.Test
             var fileType = filePath.GetFileType<FileTypes>();
 
             // Assert
-            Assert.That(fileType, Is.EqualTo(FileTypes.ssptrans));
+            fileType.Should().Be(FileTypes.ssptrans);
         }
 
-        [Test]
+        [Fact]
         public void GetFileType_ShouldReturnVideo_ForVideoPath()
         {
             // Arrange
@@ -41,10 +42,10 @@ namespace gpconnect_analytics.Test
             var fileType = filePath.GetFileType<FileTypes>();
 
             // Assert
-            Assert.That(fileType, Is.EqualTo(FileTypes.meshtrans));
+            fileType.Should().Be(FileTypes.meshtrans);
         }
 
-        [Test]
+        [Fact]
         public void GetFileType_ShouldReturnNull_ForUnknownPath()
         {
             // Arrange
@@ -54,7 +55,7 @@ namespace gpconnect_analytics.Test
             var fileType = filePath.GetFileType<FileTypes>();
 
             // Assert
-            Assert.That(fileType, Is.Null);
+            fileType.Should().BeNull();
         }
     }
 }

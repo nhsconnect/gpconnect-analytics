@@ -1,12 +1,12 @@
 using Core.Helpers;
 using FluentAssertions;
+using Xunit;
 
 namespace gpconnect_analytics.Test;
 
-[TestFixture]
 public class DateFormatConstantsTests
 {
-    [Test]
+    [Fact]
     public void ValidateDateFormatConstants()
     {
         DateFormatConstants.FilePathQueryDate.Should().Be("yyyyMMdd");

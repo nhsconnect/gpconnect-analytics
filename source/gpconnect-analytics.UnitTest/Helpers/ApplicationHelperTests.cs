@@ -2,20 +2,19 @@ using System.Reflection;
 using Core.Helpers;
 using FakeItEasy;
 using FluentAssertions;
+using Xunit;
 
 namespace gpconnect_analytics.Test;
 
-[TestFixture]
 public class ApplicationHelperTests
 {
-    [SetUp]
-    public void Setup()
+    public ApplicationHelperTests()
     {
         // Reset the environment variable before each test
         Environment.SetEnvironmentVariable("BUILD_TAG", null);
     }
 
-    [Test]
+    [Fact]
     public void GetAssemblyVersionInternal_ShouldReturnAssemblyFullName_WhenBuildTagIsNull()
     {
         // Arrange
@@ -30,7 +29,7 @@ public class ApplicationHelperTests
         result.Should().Be(typeof(ApplicationHelper).Assembly.GetName().FullName);
     }
 
-    [Test]
+    [Fact]
     public void GetAssemblyVersion_ShouldReturnAssemblyFullName_WhenBuildTagIsNull()
     {
         // Arrange
@@ -43,7 +42,7 @@ public class ApplicationHelperTests
         result.Should().Be(typeof(ApplicationHelper).Assembly.GetName().FullName);
     }
 
-    [Test]
+    [Fact]
     public void GetAssemblyVersionInternal_ShouldReturnAssemblyFullName_WhenBuildTagIsEmpty()
     {
         // Arrange
@@ -58,7 +57,7 @@ public class ApplicationHelperTests
         result.Should().Be(typeof(ApplicationHelper).Assembly.GetName().FullName);
     }
 
-    [Test]
+    [Fact]
     public void GetAssemblyVersionInternal_ShouldReturnAssemblyFullName_WhenBuildTagIsWhitespace()
     {
         // Arrange
@@ -73,7 +72,7 @@ public class ApplicationHelperTests
         result.Should().Be(typeof(ApplicationHelper).Assembly.GetName().FullName);
     }
 
-    [Test]
+    [Fact]
     public void GetAssemblyVersionInternal_ShouldReturnBuildTag_WhenBuildTagIsSet()
     {
         // Arrange
@@ -88,7 +87,7 @@ public class ApplicationHelperTests
         result.Should().Be(expectedBuildTag);
     }
 
-    [Test]
+    [Fact]
     public void GetAssemblyVersionInternal_ShouldHandleNullAssembly()
     {
         // Arrange

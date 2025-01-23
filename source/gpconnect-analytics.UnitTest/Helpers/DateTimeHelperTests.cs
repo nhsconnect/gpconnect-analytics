@@ -1,12 +1,12 @@
 using Core.Helpers;
 using FluentAssertions;
+using Xunit;
 
 namespace gpconnect_analytics.Test
 {
-    [TestFixture]
     public class DateTimeHelperTests
     {
-        [Test]
+        [Fact]
         public void EachDay_ShouldReturnAllDaysBetweenTwoDates_Inclusive()
         {
             // Arrange
@@ -27,7 +27,7 @@ namespace gpconnect_analytics.Test
             );
         }
 
-        [Test]
+        [Fact]
         public void EachDay_ShouldReturnSingleDay_WhenFromAndToDatesAreSame()
         {
             // Arrange
@@ -42,7 +42,7 @@ namespace gpconnect_analytics.Test
             result.First().Should().Be(fromDate);
         }
 
-        [Test]
+        [Fact]
         public void EachDay_ShouldReturnEmpty_WhenFromDateIsAfterToDate()
         {
             // Arrange

@@ -1,12 +1,12 @@
 using Core.Helpers;
 using FluentAssertions;
+using Xunit;
 
 namespace gpconnect_analytics.Test;
 
-[TestFixture]
 public class ConnectionStringsTests
 {
-    [Test]
+    [Fact]
     public void GpConnectAnalytics_ShouldNotBeEmpty()
     {
         // Arrange

@@ -1,5 +1,4 @@
-﻿using Core.DTOs;
-using Core.DTOs.Response.Configuration;
+﻿using Core.DTOs.Response.Configuration;
 using Core.Helpers;
 
 namespace Core.Services.Interfaces

@@ -1,12 +1,12 @@
 using Core.Helpers;
 using FluentAssertions;
+using Xunit;
 
 namespace gpconnect_analytics.Test;
 
-[TestFixture]
 public class FilePathTests
 {
-    [Test]
+    [Fact]
     public void FilePathValue_Returns_Value_WhenEmptyIsProvidedToConstructor()
     {
         // Arrange
@@ -19,7 +19,7 @@ public class FilePathTests
         filePath.Should().Be("test_file_path");
     }
 
-    [Test]
+    [Fact]
     public void FilePathValue_Returns_Empty_WhenEmptyIsProvidedToConstructor()
     {
         // Arrange
@@ -32,7 +32,7 @@ public class FilePathTests
         filePath.Should().Be("");
     }
 
-    [Test]
+    [Fact]
     public void FilePathValue_Returns_Null_WhenNullIsProvidedToConstructor()
     {
         // Arrange

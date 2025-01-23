@@ -7,7 +7,6 @@ using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using Testcontainers.MsSql;
-using File = System.IO.File;
 
 namespace gpconnect_analytics.IntegrationTests.RepositoryIntegration
 {
@@ -92,7 +91,7 @@ namespace gpconnect_analytics.IntegrationTests.RepositoryIntegration
             A.CallTo(() => fakeCoreConfigurationService.GetConnectionString(A<string>.Ignored))
                 .Returns(_container.GetConnectionString());
 
-            _repo = new HierarchyProviderConsumerRepo(fakeCoreConfigurationService);
+            _repo = new HierarchyProviderConsumerRepo(fakeCoreConfigurationService, new DapperWrapper());
 
             // create table and schema for test
             // await CreateSchemaAndTable();

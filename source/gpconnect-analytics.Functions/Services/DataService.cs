@@ -1,4 +1,6 @@
-﻿using Core.Helpers;
+﻿using Core;
+using Core.Helpers;
+using Core.Repositories;
 using Core.Services.Interfaces;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -6,7 +8,11 @@ using Microsoft.Extensions.Logging;
 
 namespace function_app.Services
 {
-    public class DataService(ILogger<DataService> logger, ICoreConfigurationService coreConfigurationService)
+    public class DataService(
+        ILogger<DataService> logger,
+        ICoreConfigurationService coreConfigurationService,
+        IDapperWrapper dapper,
+        IConnectionFactory connectionFactory)
         : IDataService
     {
         private readonly string _connectionString =
@@ -16,10 +22,10 @@ namespace function_app.Services
         {
             try
             {
-                await using var sqlConnection = new SqlConnection(_connectionString);
+                await using var sqlConnection = connectionFactory.CreateConnection(_connectionString);
                 await sqlConnection.OpenAsync();
                 logger.LogInformation($"Executing raw SQL command");
-                var rowsAffected = await sqlConnection.ExecuteAsync(sqlCommand, parameters);
+                var rowsAffected = await dapper.ExecuteAsync(sqlConnection, sqlCommand, parameters);
                 return rowsAffected;
             }
             catch (Exception ex)
@@ -29,36 +35,44 @@ namespace function_app.Services
             }
         }
 
-        public async Task<List<T>> ExecuteStoredProcedure<T>(string procedureName, DynamicParameters parameters)
+        public async Task<List<T>> ExecuteQueryStoredProcedure<T>(string procedureName, DynamicParameters parameters)
             where T : class
         {
-            await using var sqlConnection = new SqlConnection(_connectionString);
+            await using var sqlConnection = connectionFactory.CreateConnection(_connectionString);
             try
             {
-                sqlConnection.InfoMessage += SqlConnection_InfoMessage;
+                if (sqlConnection is SqlConnection connection)
+                {
+                    connection.InfoMessage += SqlConnection_InfoMessage;
+                }
+
                 logger.LogInformation($"Executing stored procedure {procedureName}", parameters);
-                var results = await sqlConnection.QueryAsync<T>(procedureName, parameters,
-                    commandType: System.Data.CommandType.StoredProcedure, commandTimeout: 0);
+
+                var results = await dapper.QueryStoredProcedureAsync<T>(sqlConnection, procedureName, parameters, 0);
                 return results.AsList();
             }
             catch (Exception exc)
             {
-                logger.LogError(exc,
-                    $"An error has occurred while attempting to execute the function {procedureName}");
+                logger.LogError(exc, $"An error has occurred while attempting to execute the function {procedureName}");
                 throw;
             }
         }
 
+
         public async Task<DynamicParameters> ExecuteStoredProcedureWithOutputParameters(string procedureName,
             DynamicParameters parameters)
         {
-            await using var sqlConnection = new SqlConnection(_connectionString);
+            await using var sqlConnection = connectionFactory.CreateConnection(_connectionString);
             try
             {
-                sqlConnection.InfoMessage += SqlConnection_InfoMessage;
+                if (sqlConnection is SqlConnection connection)
+                {
+                    connection.InfoMessage += SqlConnection_InfoMessage;
+                }
+
                 logger.LogInformation($"Executing stored procedure {procedureName}", parameters);
-                await sqlConnection.ExecuteAsync(procedureName, parameters,
-                    commandType: System.Data.CommandType.StoredProcedure, commandTimeout: 0);
+                await dapper.ExecuteStoredProcedureAsync<DynamicParameters>(sqlConnection, procedureName, parameters,
+                    0);
                 return parameters;
             }
             catch (Exception exc)
@@ -71,13 +85,16 @@ namespace function_app.Services
 
         public async Task<int> ExecuteStoredProcedure(string procedureName, DynamicParameters parameters)
         {
-            await using var sqlConnection = new SqlConnection(_connectionString);
+            await using var sqlConnection = connectionFactory.CreateConnection(_connectionString);
             try
             {
-                sqlConnection.InfoMessage += SqlConnection_InfoMessage;
+                if (sqlConnection is SqlConnection connection)
+                {
+                    connection.InfoMessage += SqlConnection_InfoMessage;
+                }
+
                 logger.LogInformation($"Executing stored procedure {procedureName}", parameters);
-                var result = await sqlConnection.ExecuteAsync(procedureName, parameters,
-                    commandType: System.Data.CommandType.StoredProcedure, commandTimeout: 0);
+                var result = await dapper.ExecuteAsync(sqlConnection, procedureName, parameters);
                 return result;
             }
             catch (Exception exc)

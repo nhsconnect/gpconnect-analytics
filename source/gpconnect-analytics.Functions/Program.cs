@@ -1,9 +1,11 @@
+using Core;
 using Core.Repositories;
 using Core.Services.Interfaces;
 using function_app.Configuration.Infrastructure.Logging;
 using function_app.Configuration.Infrastructure.Mapping;
 using function_app.Services;
 using function_app.Services.Interfaces;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -22,7 +24,9 @@ var builder = Host.CreateDefaultBuilder(args)
         services.AddScoped<IDataService, DataService>();
         services.AddScoped<IBatchService, BatchService>();
         services.AddScoped<ILoggingService, LoggingService>();
+        services.AddScoped<IDapperWrapper, DapperWrapper>();
         services.AddScoped<IHierarchyProviderConsumerRepo, HierarchyProviderConsumerRepo>();
+        services.AddScoped<IConnectionFactory, SqlConnectionFactory>();
 
 
         // Configure logging

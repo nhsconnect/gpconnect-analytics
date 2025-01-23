@@ -4,7 +4,7 @@ namespace Core.Services.Interfaces
 {
     public interface IDataService
     {
-        Task<List<T>> ExecuteStoredProcedure<T>(string procedureName, DynamicParameters parameters = null)
+        Task<List<T>> ExecuteQueryStoredProcedure<T>(string procedureName, DynamicParameters parameters = null)
             where T : class;
 
         Task<DynamicParameters> ExecuteStoredProcedureWithOutputParameters(string procedureName,
