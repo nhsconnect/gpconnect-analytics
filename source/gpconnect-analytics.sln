@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpconnect-analytics.Functio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "gpconnect-analytics.Core\Core.csproj", "{66EFAC7B-6BD6-421A-B70D-126FC4D0EE3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-analytics.UnitTest", "gpconnect-analytics.UnitTest\gpconnect-analytics.UnitTest.csproj", "{5841302E-4C82-473D-9579-308FCBA85E50}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-analytics.Core.UnitTest", "gpconnect-analytics.Core.UnitTest\gpconnect-analytics.Core.UnitTest.csproj", "{5841302E-4C82-473D-9579-308FCBA85E50}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-analytics.IntegrationTests", "gpconnect-analytics.IntegrationTests\gpconnect-analytics.IntegrationTests.csproj", "{00CE1CEE-7D58-4689-8EB6-0F86E6DF8729}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpconnect-analytics.Functions.UnitTests", "gpconnect-analytics.Functions.UnitTests\gpconnect-analytics.Functions.UnitTests.csproj", "{3A964393-AD74-49C0-891B-140B5C197661}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{00CE1CEE-7D58-4689-8EB6-0F86E6DF8729}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00CE1CEE-7D58-4689-8EB6-0F86E6DF8729}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00CE1CEE-7D58-4689-8EB6-0F86E6DF8729}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A964393-AD74-49C0-891B-140B5C197661}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A964393-AD74-49C0-891B-140B5C197661}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A964393-AD74-49C0-891B-140B5C197661}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A964393-AD74-49C0-891B-140B5C197661}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

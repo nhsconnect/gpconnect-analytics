@@ -26,12 +26,15 @@ var builder = Host.CreateDefaultBuilder(args)
         services.AddScoped<ILoggingService, LoggingService>();
         services.AddScoped<IDapperWrapper, DapperWrapper>();
         services.AddScoped<IHierarchyProviderConsumerRepo, HierarchyProviderConsumerRepo>();
-        services.AddScoped<IConnectionFactory, SqlConnectionFactory>();
+        services.AddSingleton<IConnectionFactory, SqlConnectionFactory>();
+        services.AddSingleton<IEmailConfigurationProvider, EmailConfigurationProvider>();
 
-
-        // Configure logging
+        // Configure logging with email configuration provider
         services.AddLogging(loggingBuilder =>
-            LoggingExtensions.ConfigureLoggingServices(loggingBuilder, context.Configuration));
+        {
+            var emailProvider = services.BuildServiceProvider().GetRequiredService<IEmailConfigurationProvider>();
+            LoggingExtensions.ConfigureLoggingServices(loggingBuilder, context.Configuration, emailProvider);
+        });
 
         // Configure HttpClient
         services.AddHttpClient("SplunkApiClient", options =>

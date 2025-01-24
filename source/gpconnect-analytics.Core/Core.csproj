@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="gpconnect-analytics.UnitTest" />
+        <InternalsVisibleTo Include="gpconnect-analytics.Core.UnitTest" />
     </ItemGroup>
 
 </Project>

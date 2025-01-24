@@ -15,13 +15,13 @@ namespace function_app.Configuration.Infrastructure.Logging
 {
     public static class LoggingExtensions
     {
-        public static ILoggingBuilder ConfigureLoggingServices(ILoggingBuilder loggingBuilder,
-            IConfiguration configuration)
+        public static ILoggingBuilder ConfigureLoggingServices(
+            ILoggingBuilder loggingBuilder,
+            IConfiguration configuration,
+            IEmailConfigurationProvider emailConfigurationProvider)
         {
             // Set up NLog
-            LogManager.Setup()
-                .LoadConfigurationFromFile("nlog.config");
-
+            LogManager.Setup().LoadConfigurationFromFile("nlog.config");
 
             // Add NLog to the logging pipeline
             loggingBuilder.AddNLog();
@@ -31,7 +31,7 @@ namespace function_app.Configuration.Infrastructure.Logging
 
             var consoleTarget = AddConsoleTarget();
             var databaseTarget = AddDatabaseTarget(configuration);
-            var mailTarget = AddMailTarget(configuration);
+            var mailTarget = AddMailTarget(configuration, emailConfigurationProvider);
 
             nLogConfiguration.Variables.Add("applicationVersion",
                 ApplicationHelper.ApplicationVersion.GetAssemblyVersion());
@@ -47,9 +47,10 @@ namespace function_app.Configuration.Infrastructure.Logging
             return loggingBuilder;
         }
 
-        private static MailTarget AddMailTarget(IConfiguration configuration)
+        private static MailTarget AddMailTarget(IConfiguration configuration,
+            IEmailConfigurationProvider emailConfigurationProvider)
         {
-            var emailConfiguration = GetEmailConfiguration(configuration);
+            var emailConfiguration = emailConfigurationProvider.GetEmailConfiguration(configuration);
             if (emailConfiguration == null)
             {
                 throw new InvalidOperationException("EmailConfiguration cannot be null");
@@ -60,7 +61,7 @@ namespace function_app.Configuration.Infrastructure.Logging
                 Name = "Mail",
                 Html = false,
                 SmtpServer = emailConfiguration.Hostname,
-                SmtpAuthentication = emailConfiguration is { AuthenticationRequired: true }
+                SmtpAuthentication = emailConfiguration.AuthenticationRequired
                     ? SmtpAuthenticationMode.Basic
                     : SmtpAuthenticationMode.None,
                 SmtpUserName = emailConfiguration.Username,
