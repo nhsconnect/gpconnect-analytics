@@ -44,6 +44,7 @@ dlldata.c
 project.lock.json
 project.fragment.lock.json
 artifacts/
+coverage/*
 
 *_i.c
 *_p.c
@@ -254,4 +255,4 @@ paket-files/
 *.sln.iml
 
 # CodeRush
-.cr/
+.cr/.DS_Store

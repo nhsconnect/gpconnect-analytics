@@ -1,0 +1,42 @@
+using System.Net;
+using Functions.Services.Interfaces;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
+
+namespace Functions
+{
+    public class GetDataFromApiManual(IImportService importService, ILogger log)
+    {
+        [Function("GetDataFromApiManual")]
+        public async Task<HttpResponseData> AddDownloadedFile(
+            [HttpTrigger(AuthorizationLevel.Function, "GET", Route = null)]
+            HttpRequestData req)
+        {
+            var response = req.CreateResponse();
+            response.Headers.Add("Content-Type", "application/text");
+            try
+            {
+                var filePath = req.Query["FilePath"];
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    response.StatusCode = HttpStatusCode.BadRequest;
+                    await response.WriteStringAsync("Filepath missing");
+                    return response;
+                }
+
+                await importService.AddDownloadedFileManually(filePath);
+                response.StatusCode = HttpStatusCode.OK;
+                await response.WriteStringAsync("Successfully added files");
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, $"Error adding downloaded file: {ex.Message}");
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                await response.WriteStringAsync("Something went wrong - see error logs for more details");
+                return response;
+            }
+        }
+    }
+}

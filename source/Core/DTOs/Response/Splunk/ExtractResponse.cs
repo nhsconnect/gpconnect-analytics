@@ -1,0 +1,13 @@
+﻿using Core.DTOs.Request;
+
+namespace Core.DTOs.Response.Splunk
+{
+    public class ExtractResponse
+    {
+        public HttpResponseMessage ExtractResponseMessage { get; set; }
+        public Stream ExtractResponseStream { get; set; }
+        public Extract ExtractRequestDetails { get; set; }
+        public string FilePath { get; set; }
+        public UriRequest UriRequest { get; set; }
+    }
+}
