@@ -4,8 +4,12 @@
 
 .vs
 *.ps1
+.vscode
+**/CoverageReport/
+**/TestResults/
 database/flyway-7.0.0/
 serviceDependencies.json
 serviceDependencies.local.json
 *.arm.json
-/source/gpconnect-analytics.Functions/Properties/PublishProfiles/GPConnectAnalytics - Zip Deploy.pubxml
+/source/gpconnect-analytics.Functions/Properties/PublishProfiles/GPConnectAnalytics - Zip Deploy.pubxml.DS_Store
+.DS_Store

@@ -7,6 +7,7 @@
 [![Build Actions Status](https://github.com/nhsconnect/gpconnect-analytics/workflows/continuous-integration/badge.svg)](https://github.com/nhsconnect/gpconnect-analytics/actions?)
 
 ## End-to-end data flow
+
 ![End-to-end diagram](documentation/end-to-end-data-flow.png)
 
 ## Data extracts
@@ -41,13 +42,13 @@ General format:
 
 `PROJECTNAME-EXTRACTNAME-QUERYFROMDATE-QUERYTODATE-SPLUNKINSTANCE-EXTRACTDATE.csv`
 
-Where 
-  - PROJECTNAME is `gpcanalytics`
-  - EXTRACTNAME is `asidlookup`, `ssptrans` (MESH transactions TBC)
-  - QUERYDATEFROM and QUERYDATETO is `YYYYMMDDTHHmmss`
-  - SPLUNKINSTANCE is `cloud`, `spinea`, `spineb`
-  - EXTRACTDATE is `YYYYMMDDTHHmmss`
+Where
 
+- PROJECTNAME is `gpcanalytics`
+- EXTRACTNAME is `asidlookup`, `ssptrans` (MESH transactions TBC)
+- QUERYDATEFROM and QUERYDATETO is `YYYYMMDDTHHmmss`
+- SPLUNKINSTANCE is `cloud`, `spinea`, `spineb`
+- EXTRACTDATE is `YYYYMMDDTHHmmss`
 
 Examples:
 
@@ -55,7 +56,8 @@ Examples:
 - `gpcanalytics-ssptrans-20200101T000000-20200107T000000-cloud-20210105T103000.csv`
 - `gpcanalytics-ssptrans-20200107T000000-2020014T000000-spinea-20210105T103000.csv`
 
-Note:  The QUERYDATEFROM and QUERYDATETO don't affect the output of the ASID lookup data query from Splunk, however are included for consistency.
+Note:  The QUERYDATEFROM and QUERYDATETO don't affect the output of the ASID lookup data query from Splunk, however are
+included for consistency.
 
 ## Run a local SQL Server instance
 
@@ -67,3 +69,44 @@ To run the instance on the default port:
 
 `docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=StrongP@ssword1' -p 1433:1433 -d mcr.microsoft.com/mssql/server`
 
+## Testing
+
+Tests were added the project on 8th Feb 2025 by Grant Riordan covering:
+
+- Core Project
+- Functions Project
+- Integration test for Hierarchy repository
+
+### How To Run Coverage Report
+
+**Run the coverage tests**:
+
+If you do not own a DotCover license or equivalent, you can use `coverlet` a free tool for running coverage reports.
+
+- navigate to the `/source` directory
+- open terminal and paste
+
+```bash
+dotnet test --collect:"XPlat Code Coverage" -m:1
+```
+
+or
+
+```bash
+dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=lcov
+
+```
+
+**Install Report Generator Globally**
+Report generator allows us to build a html report of the coverage making it easier to view.
+
+run the following to install: 
+```bash
+dotnet tool install -g dotnet-reportgenerator-globaltool
+
+```
+then run the following to merge the coverage results into 1 report file
+
+```bash
+reportgenerator -reports:"../**/coverage.cobertura.xml" -reporttypes:"html" -targetdir:"./CoverageReport"
+- ```

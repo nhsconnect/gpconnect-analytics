@@ -1,0 +1,20 @@
+SET
+    ANSI_NULLS ON;
+
+SET
+    QUOTED_IDENTIFIER ON;
+
+CREATE TABLE Data.HierarchyProviderConsumers (
+    OdsCode NVARCHAR(450) NOT NULL,
+    PracticeName NVARCHAR(MAX) NULL,
+    RegisteredPatientCount INT NOT NULL,
+    RegionCode NVARCHAR(MAX) NULL,
+    RegionName NVARCHAR(MAX) NULL,
+    Icb22Name NVARCHAR(MAX) NULL,
+    PcnName NVARCHAR(MAX) NULL,
+    Appointments13000 INT NOT NULL,
+    CONSTRAINT PK_HierarchyProviderConsumers PRIMARY KEY CLUSTERED (OdsCode ASC)
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
+
+SET
+    ANSI_PADDING ON;
